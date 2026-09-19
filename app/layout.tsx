@@ -20,8 +20,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RentNext",
-  description: "Car rental platform for Mauritius",
+  title: "Rent Next Car Hire",
+  description: "Elevate your driving experience. Car rental platform for Mauritius.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

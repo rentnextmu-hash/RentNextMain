@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -35,7 +36,7 @@ export function Sidebar() {
   return (
     <aside className="hidden w-60 shrink-0 flex-col bg-admin-sidebar text-white md:flex">
       <div className="flex h-16 items-center px-6">
-        <span className="text-lg font-semibold">RentNext</span>
+        <Image src="/logo-mark.png" alt="Rent Next Car Hire" width={140} height={77} className="h-8 w-auto" />
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-2">

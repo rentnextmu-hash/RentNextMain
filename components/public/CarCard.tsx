@@ -1,22 +1,38 @@
+import Image from "next/image";
 import { Car } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { formatMUR } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { VehicleCategoryClass } from "@/types/enums";
 
-const CLASS_GRADIENT: Record<VehicleCategoryClass, string> = {
-  economy: "from-sky-100 to-sky-50",
-  comfort: "from-amber-100 to-amber-50",
-  suv: "from-emerald-100 to-emerald-50",
-  premium: "from-slate-200 to-slate-50",
+export const CLASS_LABEL: Record<VehicleCategoryClass, string> = {
+  mini: "Mini",
+  economy: "Economy",
+  economy_elite: "Economy Elite",
+  standard: "Standard",
+  compact: "Compact",
+  sedan: "Sedan",
+  intermediate: "Intermediate",
+  compact_elite: "Compact Elite",
+  luxury: "Luxury",
+  convertible: "Convertible",
+  pickup: "Pick Up",
 };
 
-const CLASS_LABEL: Record<VehicleCategoryClass, string> = {
-  economy: "Economy",
-  comfort: "Comfort",
-  suv: "SUV",
-  premium: "Premium",
-};
+// Canonical cheapest-to-priciest order, matching the real rate card.
+export const CLASS_ORDER: VehicleCategoryClass[] = [
+  "mini",
+  "economy",
+  "economy_elite",
+  "standard",
+  "compact",
+  "sedan",
+  "intermediate",
+  "compact_elite",
+  "luxury",
+  "convertible",
+  "pickup",
+];
 
 export type CarCardData = {
   name: string;
@@ -25,6 +41,7 @@ export type CarCardData = {
   seats: number;
   airConditioning: boolean;
   dailyRateMur: number;
+  imagePath: string | null;
   availableCount?: number;
 };
 
@@ -36,13 +53,18 @@ export function CarCard({ car, className }: { car: CarCardData; className?: stri
         className,
       )}
     >
-      <div
-        className={cn(
-          "relative flex h-40 items-center justify-center bg-gradient-to-br",
-          CLASS_GRADIENT[car.category],
+      <div className="relative flex h-44 items-center justify-center bg-surface-alt">
+        {car.imagePath ? (
+          <Image
+            src={car.imagePath}
+            alt={car.name}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-contain p-4"
+          />
+        ) : (
+          <Car className="h-16 w-16 text-primary/30" strokeWidth={1.25} aria-hidden="true" />
         )}
-      >
-        <Car className="h-16 w-16 text-primary/30" strokeWidth={1.25} aria-hidden="true" />
         <Badge variant="neutral" className="absolute left-3 top-3 bg-surface/90">
           {CLASS_LABEL[car.category]}
         </Badge>

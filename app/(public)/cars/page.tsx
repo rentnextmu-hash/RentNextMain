@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveCategories, getCategoriesWithAvailabilityCount } from "@/lib/queries/categories";
 import { getLocationBySlug } from "@/lib/queries/locations";
-import { CarCard } from "@/components/public/CarCard";
+import { CarCard, CLASS_LABEL, CLASS_ORDER } from "@/components/public/CarCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { cn } from "@/lib/utils";
 import { formatDateRange } from "@/lib/format";
@@ -11,17 +11,9 @@ import type { VehicleCategoryClass } from "@/types/enums";
 import { Car } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Our Vehicles | RentNext",
-  description: "Browse the full RentNext fleet — economy, comfort, SUV and premium vehicles across Mauritius.",
+  title: "Our Vehicles | Rent Next Car Hire",
+  description: "Browse the full Rent Next Car Hire fleet — from the Suzuki Celerio to the BMW 330e, across Mauritius.",
 };
-
-const CLASS_FILTERS: { value: VehicleCategoryClass | "all"; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "economy", label: "Economy" },
-  { value: "comfort", label: "Comfort" },
-  { value: "suv", label: "SUV" },
-  { value: "premium", label: "Premium" },
-];
 
 type SearchParams = {
   category?: string;
@@ -43,6 +35,15 @@ export default async function CarsPage({ searchParams }: { searchParams: Promise
     hasSearch && searchedLocation
       ? await getCategoriesWithAvailabilityCount(supabase, searchedLocation.id, params.from!, params.to!)
       : (await getActiveCategories(supabase)).map((c) => ({ ...c, availableCount: undefined as number | undefined }));
+
+  // Filter pills reflect whichever classes actually exist in the data,
+  // in canonical cheapest-to-priciest order, rather than a hardcoded list
+  // that could drift from the real fleet.
+  const presentClasses = CLASS_ORDER.filter((cls) => categories.some((c) => c.category === cls));
+  const classFilters: { value: VehicleCategoryClass | "all"; label: string }[] = [
+    { value: "all", label: "All" },
+    ...presentClasses.map((cls) => ({ value: cls, label: CLASS_LABEL[cls] })),
+  ];
 
   const filtered = activeClass === "all" ? categories : categories.filter((c) => c.category === activeClass);
 
@@ -66,7 +67,7 @@ export default async function CarsPage({ searchParams }: { searchParams: Promise
       )}
 
       <div className="mt-8 flex flex-wrap gap-2">
-        {CLASS_FILTERS.map((filter) => {
+        {classFilters.map((filter) => {
           const href = (() => {
             const qs = new URLSearchParams();
             if (filter.value !== "all") qs.set("category", filter.value);
@@ -106,6 +107,7 @@ export default async function CarsPage({ searchParams }: { searchParams: Promise
                 seats: car.seats,
                 airConditioning: car.air_conditioning,
                 dailyRateMur: car.daily_rate_mur,
+                imagePath: car.image_path,
                 availableCount: car.availableCount,
               }}
               className={car.availableCount === 0 ? "opacity-50" : undefined}

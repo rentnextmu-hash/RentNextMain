@@ -1,10 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const VEHICLE_LINKS = [
+  { href: "/cars?category=mini", label: "Mini" },
   { href: "/cars?category=economy", label: "Economy" },
-  { href: "/cars?category=comfort", label: "Comfort" },
-  { href: "/cars?category=suv", label: "SUV" },
-  { href: "/cars?category=premium", label: "Premium" },
+  { href: "/cars?category=standard", label: "Standard" },
+  { href: "/cars?category=intermediate", label: "Intermediate" },
+  { href: "/cars?category=luxury", label: "Luxury" },
 ];
 
 const LOCATION_LINKS = [
@@ -22,9 +24,9 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="font-[family-name:var(--font-heading)] text-lg font-semibold text-primary">RentNext</p>
+            <Image src="/logo-mark.png" alt="Rent Next Car Hire" width={140} height={77} className="h-9 w-auto" />
             <p className="mt-3 text-sm text-text-muted">
-              Reliable car rental across Mauritius — island-wide pickup, hotel delivery, and no hidden fees.
+              Elevate your driving experience — reliable car rental across Mauritius, island-wide pickup, no hidden fees.
             </p>
           </div>
 
@@ -57,16 +59,15 @@ export function Footer() {
           <div>
             <p className="text-sm font-semibold text-text">Contact</p>
             <ul className="mt-3 space-y-2 text-sm text-text-muted">
-              <li>+230 263 0000</li>
-              <li>WhatsApp: +230 5700 0000</li>
-              <li>bookings@rentnext.mu</li>
-              <li>Royal Road, Grand Baie, Mauritius</li>
+              <li>+230 5500 1415</li>
+              <li>booking@rentnext.net</li>
+              <li>www.rentnext.net</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 text-sm text-text-muted sm:flex-row">
-          <p>&copy; {new Date().getFullYear()} RentNext Mauritius. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Rent Next Car Hire. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/terms" className="hover:text-primary">
               Terms

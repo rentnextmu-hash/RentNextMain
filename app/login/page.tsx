@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -48,8 +49,15 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-admin-sidebar px-4 font-[family-name:var(--font-body)]">
       <div className="w-full max-w-sm rounded-[var(--radius-lg)] bg-admin-surface p-8 shadow-[var(--shadow-lg)]">
-        <p className="text-center text-lg font-semibold text-text">RentNext</p>
-        <p className="mt-1 text-center text-sm text-text-muted">Staff sign in</p>
+        <Image
+          src="/logo-mark.png"
+          alt="Rent Next Car Hire"
+          width={140}
+          height={77}
+          className="mx-auto h-10 w-auto"
+          priority
+        />
+        <p className="mt-3 text-center text-sm text-text-muted">Staff sign in</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <Input

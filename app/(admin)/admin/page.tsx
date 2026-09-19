@@ -1,6 +1,7 @@
 import { Car, CheckCircle2, Wrench, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getFleetStats, getTodayActivity, getRecentBookings, getUpcomingReturns } from "@/lib/queries/dashboard";
+import { getActiveCategories } from "@/lib/queries/categories";
 import { StatCard } from "@/components/admin/StatCard";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -8,11 +9,12 @@ import { formatMUR, formatDate } from "@/lib/format";
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
-  const [fleet, activity, recentBookings, upcomingReturns] = await Promise.all([
+  const [fleet, activity, recentBookings, upcomingReturns, categories] = await Promise.all([
     getFleetStats(supabase),
     getTodayActivity(supabase),
     getRecentBookings(supabase, 8),
     getUpcomingReturns(supabase, 7),
+    getActiveCategories(supabase),
   ]);
 
   const availablePct = fleet.total > 0 ? Math.round((fleet.available / fleet.total) * 100) : 0;
@@ -23,7 +25,7 @@ export default async function AdminDashboardPage() {
         <StatCard
           label="Total fleet"
           value={fleet.total}
-          supporting="8 categories"
+          supporting={`${categories.length} categories`}
           icon={Car}
         />
         <StatCard

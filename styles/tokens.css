@@ -1,9 +1,10 @@
 :root {
-  /* Brand */
-  --color-primary: #0b3d5c;
-  --color-primary-hover: #0a3450;
-  --color-accent: #e8a33d;
-  --color-accent-hover: #d4922f;
+  /* Brand — Rent Next Car Hire's real navy + teal, sampled from the
+     logo mark and marketing materials (Price List.pdf). */
+  --color-primary: #0c1728;
+  --color-primary-hover: #16273f;
+  --color-accent: #2dc1b5;
+  --color-accent-hover: #25a89d;
 
   /* Public surfaces */
   --color-background: #fdfcfa;
@@ -14,7 +15,7 @@
   /* Admin surfaces */
   --color-admin-bg: #f6f7f9;
   --color-admin-surface: #ffffff;
-  --color-admin-sidebar: #0f1b2a;
+  --color-admin-sidebar: #0c1728;
   --color-admin-border: #e2e6ec;
 
   /* Text */
