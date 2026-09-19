@@ -65,10 +65,15 @@ on conflict (slug) do update set
 
 -- ────────────────────────────────────────────────────────────────────────
 -- Vehicle categories (12) — Rent Next Car Hire's real fleet, from
--- Price List.pdf. Rates use the "3-5 Days" tier as the single
--- representative daily rate; the source document actually prices by
--- rental duration (1-2 / 3-5 / 6+ days), which is a genuinely bigger
--- schema change deliberately deferred (see 0003's migration comment).
+-- Price List.pdf. Real duration-tiered rates (1-2 / 3-5 / 6+ days) as of
+-- migration 0004 — daily_rate_mur is now a generated column (= the 6+
+-- day rate) so it's omitted from this INSERT's column list entirely;
+-- writing to a GENERATED ALWAYS column is a Postgres error. rate_class
+-- is the A-L single-letter code from the price list's "Models Available"
+-- page (not the rate table, which reuses letters for Standard/Convertible/
+-- Pick Up — the per-model page doesn't). tagline/description/best_for are
+-- the fleet showcase carousel's copy, written once here rather than
+-- hardcoded in the component, so it's editable from the admin later.
 -- image_path points at the real product photos extracted from the PDF.
 -- Old placeholder demo categories (economy/comfort/suv/premium taxonomy)
 -- are removed below, before this upsert, since their slugs don't overlap
@@ -91,48 +96,91 @@ delete from customers;
 delete from vehicles; -- full fleet changeover; re-inserted fresh below
 delete from vehicle_categories;
 
-insert into vehicle_categories (id, slug, name, make, model, category, transmission, seats, doors, fuel_type, air_conditioning, daily_rate_mur, description, features, image_path, display_order, is_active)
+insert into vehicle_categories (
+  id, slug, name, make, model, category, transmission, seats, doors, fuel_type, air_conditioning,
+  rate_1_2_mur, rate_3_5_mur, rate_6_plus_mur, rate_class, luggage_capacity,
+  tagline, description, best_for, features, image_path, display_order, is_active
+)
 values
-  ('20000000-0000-0000-0000-000000000001', 'suzuki-celerio', 'Suzuki Celerio', 'Suzuki', 'Celerio', 'mini', 'automatic', 5, 5, 'petrol', true, 2700,
-   'Our smallest, most affordable car — easy to park, cheap to run, and genuinely enough for two travellers exploring the island on a budget.',
+  ('20000000-0000-0000-0000-000000000001', 'suzuki-celerio', 'Suzuki Celerio', 'Suzuki', 'Celerio', 'mini', 'automatic', 5, 5, 'petrol', true,
+   2900, 2700, 2500, 'A', 1,
+   'Light on the road, easy on the wallet.',
+   'Small, light and effortless in Port Louis traffic. Slips into any parking space in Grand Baie and sips fuel on the long run down to Le Morne.',
+   'Solo travellers and quick errands',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage"]', '/cars/suzuki-celerio.png', 1, true),
-  ('20000000-0000-0000-0000-000000000002', 'toyota-vitz', 'Toyota Vitz', 'Toyota', 'Vitz', 'economy', 'automatic', 5, 5, 'petrol', true, 3200,
-   'A dependable, fuel-efficient hatchback and the most popular choice in the fleet. Automatic transmission and a tight turning circle make it effortless around town and on the coast road.',
+  ('20000000-0000-0000-0000-000000000002', 'toyota-vitz', 'Toyota Vitz', 'Toyota', 'Vitz', 'economy', 'automatic', 5, 5, 'petrol', true,
+   3400, 3200, 3000, 'B', 2,
+   'The one everyone asks for, for good reason.',
+   'Our most-booked car, and the easiest way to see the island. Automatic, air-conditioned, and just the right size for the coastal roads between Grand Baie and Trou-aux-Biches.',
+   'Couples exploring the north coast',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage"]', '/cars/toyota-vitz.png', 2, true),
-  ('20000000-0000-0000-0000-000000000003', 'toyota-raize', 'Toyota Raize', 'Toyota', 'Raize', 'economy_elite', 'automatic', 5, 5, 'petrol', true, 3400,
-   'A compact SUV with a higher driving position than the economy hatchbacks, without stepping up to a full intermediate SUV. A step up in comfort for the same easy handling.',
+  ('20000000-0000-0000-0000-000000000003', 'toyota-raize', 'Toyota Raize', 'Toyota', 'Raize', 'economy_elite', 'automatic', 5, 5, 'petrol', true,
+   3600, 3400, 3200, 'C', 2,
+   'A little more ground clearance, a lot more confidence.',
+   'Sits higher than the hatchbacks without the size of a full SUV. Handles the inland roads up to Chamarel with ease, and still tucks into a hotel car park without fuss.',
+   'First-time visitors wanting extra comfort',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","Reversing camera"]', '/cars/toyota-raize.png', 3, true),
-  ('20000000-0000-0000-0000-000000000004', 'suzuki-brezza', 'Suzuki Brezza', 'Suzuki', 'Brezza', 'economy_elite', 'automatic', 5, 5, 'petrol', true, 3600,
-   'A compact SUV with confident handling on Mauritius'' hillier inland roads, comfortable for four adults with luggage, equally at home on the coast or heading up to Chamarel.',
+  ('20000000-0000-0000-0000-000000000004', 'suzuki-brezza', 'Suzuki Brezza', 'Suzuki', 'Brezza', 'economy_elite', 'automatic', 5, 5, 'petrol', true,
+   3800, 3600, 3400, 'D', 2,
+   'Built for the roads off the main strip.',
+   'A compact SUV with real presence — confident on the hillier inland routes towards Black River Gorges, and just as at home cruising the coast road at sunset.',
+   'Couples heading inland as well as the coast',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","Reversing camera"]', '/cars/suzuki-brezza.png', 4, true),
-  ('20000000-0000-0000-0000-000000000005', 'suzuki-ertiga', 'Suzuki Ertiga', 'Suzuki', 'Ertiga', 'standard', 'automatic', 7, 5, 'petrol', true, 4500,
-   'A seven-seat MPV built for families and groups travelling together — easy to load, comfortable on longer drives, and the natural choice for a full island tour in one car.',
+  ('20000000-0000-0000-0000-000000000005', 'suzuki-ertiga', 'Suzuki Ertiga', 'Suzuki', 'Ertiga', 'standard', 'automatic', 7, 5, 'petrol', true,
+   4700, 4500, 4300, 'E', 3,
+   'Everyone, and everyone''s luggage, in one car.',
+   'Seven seats and a boot that actually fits the beach bags. Built for families and groups who want to explore the island together, not in two cars.',
+   'Families and groups of up to seven',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","7 seats"]', '/cars/suzuki-ertiga.png', 5, true),
-  ('20000000-0000-0000-0000-000000000006', 'toyota-corolla-sport-hybrid', 'Toyota Corolla Sport Hybrid', 'Toyota', 'Corolla Sport Hybrid', 'compact', 'automatic', 5, 5, 'hybrid', true, 4400,
-   'A hybrid hatchback that pairs Corolla reliability with genuinely low fuel consumption — a smart, quiet choice for longer drives around the island.',
+  ('20000000-0000-0000-0000-000000000006', 'toyota-corolla-sport-hybrid', 'Toyota Corolla Sport Hybrid', 'Toyota', 'Corolla Sport Hybrid', 'compact', 'automatic', 5, 5, 'hybrid', true,
+   4600, 4400, 4200, 'F', 2,
+   'Quiet, efficient, and genuinely pleasant to drive.',
+   'A hybrid engine that barely touches the fuel gauge, wrapped in a cabin quiet enough for the long coastal drive from Belle Mare to Le Morne without a single stop for petrol.',
+   'Longer island tours in comfort',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","Hybrid engine"]', '/cars/toyota-corolla-sport-hybrid.png', 6, true),
-  ('20000000-0000-0000-0000-000000000007', 'kia-cerato', 'Kia Cerato', 'Kia', 'Cerato', 'sedan', 'automatic', 5, 4, 'petrol', true, 4600,
-   'A roomy, well-equipped sedan with a proper boot — suited to couples or small families who want a smoother, quieter ride than a hatchback.',
+  ('20000000-0000-0000-0000-000000000007', 'kia-cerato', 'Kia Cerato', 'Kia', 'Cerato', 'sedan', 'automatic', 5, 4, 'petrol', true,
+   4800, 4600, 4400, 'G', 3,
+   'A proper boot for a proper holiday.',
+   'Roomier than a hatchback, smoother than an SUV. The Cerato is for travellers who''d rather arrive relaxed than adventurous — a genuinely comfortable ride from the airport to your hotel.',
+   'Business trips and airport transfers',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","Power windows"]', '/cars/kia-cerato.png', 7, true),
-  ('20000000-0000-0000-0000-000000000008', 'kia-sportage', 'Kia Sportage', 'Kia', 'Sportage', 'intermediate', 'automatic', 5, 5, 'petrol', true, 5400,
-   'A full-size SUV with real ground clearance and cabin space, the most capable option in the mid-range fleet for a full day of exploring inland.',
+  ('20000000-0000-0000-0000-000000000008', 'kia-sportage', 'Kia Sportage', 'Kia', 'Sportage', 'intermediate', 'automatic', 5, 5, 'petrol', true,
+   5600, 5400, 5200, 'H', 2,
+   'Ground clearance for the roads the map doesn''t show.',
+   'A full-size SUV with the cabin space and clearance to handle Mauritius properly — Chamarel''s dirt tracks, Black River''s switchbacks, and the beach car parks in between.',
+   'Active days — hiking, diving, exploring',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","Reversing camera"]', '/cars/kia-sportage.png', 8, true),
-  ('20000000-0000-0000-0000-000000000009', 'bmw-x2', 'BMW X2', 'BMW', 'X2', 'compact_elite', 'automatic', 5, 5, 'petrol', true, 4300,
-   'A compact premium crossover for travellers who want BMW handling and interior quality without the size — or price — of a full luxury SUV.',
+  ('20000000-0000-0000-0000-000000000009', 'bmw-x2', 'BMW X2', 'BMW', 'X2', 'compact_elite', 'automatic', 5, 5, 'petrol', true,
+   4500, 4300, 4100, 'I', 2,
+   'A premium crossover, sized for the island.',
+   'BMW handling and interior quality in a footprint that still fits Grand Baie''s narrower streets. For travellers who want to feel the difference the moment they sit down.',
+   'A touch of premium without going full luxury',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","Reversing camera","Cruise control"]', '/cars/bmw-x2.png', 9, true),
-  ('20000000-0000-0000-0000-000000000010', 'bmw-330e', 'BMW 330e', 'BMW', '330e', 'luxury', 'automatic', 5, 4, 'hybrid', true, 8300,
-   'Our flagship — a plug-in hybrid executive sedan for business trips, special occasions, or simply a more refined way to see the island.',
+  ('20000000-0000-0000-0000-000000000010', 'bmw-330e', 'BMW 330e', 'BMW', '330e', 'luxury', 'automatic', 5, 4, 'hybrid', true,
+   8500, 8300, 8100, 'J', 2,
+   'Our flagship. Arrive like it.',
+   'A plug-in hybrid executive sedan for the trip that deserves it — a wedding, an anniversary, a client meeting. Silent on electric power through town, effortless everywhere else.',
+   'Special occasions and business travel',
    '["Air conditioning","Bluetooth","Leather seats","Unlimited mileage","Premium sound system","Cruise control","Hybrid engine"]', '/cars/bmw-330e.png', 10, true),
-  ('20000000-0000-0000-0000-000000000011', 'mini-cooper-convertible', 'Mini Cooper Convertible', 'Mini', 'Cooper Convertible', 'convertible', 'automatic', 4, 2, 'petrol', true, 6600,
-   'Top down, coast road, nowhere to be — our convertible is built for the scenic drives, not the daily commute. Limited boot space, maximum occasion.',
+  ('20000000-0000-0000-0000-000000000011', 'mini-cooper-convertible', 'Mini Cooper Convertible', 'Mini', 'Cooper Convertible', 'convertible', 'automatic', 4, 2, 'petrol', true,
+   6800, 6600, 6400, 'K', 2,
+   'Roof down, coast road, no particular hurry.',
+   'Not the practical choice — the memorable one. Built for the drive along Flic-en-Flac at golden hour, not for hauling luggage. Pack light and take the long way.',
+   'A scenic drive, not a full holiday',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","Convertible roof"]', '/cars/mini-cooper-convertible.png', 11, true),
-  ('20000000-0000-0000-0000-000000000012', 'ford-ranger', 'Ford Ranger', 'Ford', 'Ranger', 'pickup', 'automatic', 5, 5, 'petrol', true, 6500,
-   'A genuine double-cab pickup for watersports gear, building supplies, or anyone who needs load-bed space alongside full five-seat comfort.',
+  ('20000000-0000-0000-0000-000000000012', 'ford-ranger', 'Ford Ranger', 'Ford', 'Ranger', 'pickup', 'automatic', 5, 5, 'petrol', true,
+   6700, 6500, 6300, 'L', 4,
+   'For gear that doesn''t fit in a boot.',
+   'Double-cab comfort with genuine load-bed space — dive equipment, surfboards, market hauls. Built for travellers whose holiday needs more room than a sedan can offer.',
+   'Watersports gear and equipment-heavy trips',
    '["Air conditioning","Bluetooth","USB charging","Unlimited mileage","Load bed"]', '/cars/ford-ranger.png', 12, true)
 on conflict (slug) do update set
   name = excluded.name, make = excluded.make, model = excluded.model, category = excluded.category,
   transmission = excluded.transmission, seats = excluded.seats, doors = excluded.doors, fuel_type = excluded.fuel_type,
-  air_conditioning = excluded.air_conditioning, daily_rate_mur = excluded.daily_rate_mur, description = excluded.description,
+  air_conditioning = excluded.air_conditioning,
+  rate_1_2_mur = excluded.rate_1_2_mur, rate_3_5_mur = excluded.rate_3_5_mur, rate_6_plus_mur = excluded.rate_6_plus_mur,
+  rate_class = excluded.rate_class, luggage_capacity = excluded.luggage_capacity,
+  tagline = excluded.tagline, description = excluded.description, best_for = excluded.best_for,
   features = excluded.features, image_path = excluded.image_path, display_order = excluded.display_order, is_active = excluded.is_active;
 
 -- ────────────────────────────────────────────────────────────────────────
@@ -372,11 +420,18 @@ values
   ('70000000-0000-0000-0000-000000000014', '50000000-0000-0000-0000-000000000004', 1, 500, 500),   -- B14 hotel delivery
   ('70000000-0000-0000-0000-000000000014', '50000000-0000-0000-0000-000000000002', 1, 200, 200);   -- B14 baby seat
 
--- Compute pricing from the live fleet rather than hand-multiplying: car
--- rate x days from vehicle_categories, add-on totals summed from
--- booking_add_ons (0 where a booking has none), and the grand total as
--- their sum.
-update bookings b set car_total_mur = vc.daily_rate_mur * b.days
+-- Compute pricing from the live fleet rather than hand-multiplying: the
+-- duration-tiered rate (mirroring lib/pricing.ts's selectDailyRate — the
+-- application's single source of truth for this rule; this SQL exists
+-- only because seed data generation can't call TypeScript) x days from
+-- vehicle_categories, add-on totals summed from booking_add_ons (0 where
+-- a booking has none), and the grand total as their sum.
+update bookings b set car_total_mur =
+  (case
+    when b.days <= 2 then vc.rate_1_2_mur
+    when b.days <= 5 then vc.rate_3_5_mur
+    else vc.rate_6_plus_mur
+  end) * b.days
 from vehicle_categories vc
 where vc.id = b.category_id;
 

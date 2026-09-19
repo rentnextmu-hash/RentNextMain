@@ -1,7 +1,7 @@
 // The only place pricing maths happens anywhere in the codebase — pure
-// functions, no database access. Both the public booking flow and the
-// admin manual-booking form must import from here rather than
-// re-implementing any of this.
+// functions, no database access. The fleet showcase carousel, the
+// category page and the booking flow must all import selectDailyRate()
+// from here rather than re-implementing the duration-tier rule.
 import { daysBetween } from "@/lib/format";
 import type { AddOnPriceType } from "@/types/enums";
 
@@ -11,12 +11,30 @@ export type AddOnLine = {
   quantity: number;
 };
 
+/** A vehicle category's three duration-tiered daily rates, matching the real rate card. */
+export type CategoryRates = {
+  rate1To2Mur: number;
+  rate3To5Mur: number;
+  rate6PlusMur: number;
+};
+
 export function calculateRentalDays(pickupAt: Date | string, returnAt: Date | string): number {
   return daysBetween(pickupAt, returnAt);
 }
 
-export function calculateCarTotal(dailyRateMur: number, days: number): number {
-  return dailyRateMur * days;
+/**
+ * Picks the per-day rate for a given rental length: 1-2 days, 3-5 days,
+ * or 6+ days — cheaper per day the longer the rental, matching Rent
+ * Next's real pricing. The sole place this rule is expressed.
+ */
+export function selectDailyRate(rates: CategoryRates, days: number): number {
+  if (days <= 2) return rates.rate1To2Mur;
+  if (days <= 5) return rates.rate3To5Mur;
+  return rates.rate6PlusMur;
+}
+
+export function calculateCarTotal(rates: CategoryRates, days: number): number {
+  return selectDailyRate(rates, days) * days;
 }
 
 export function calculateAddOnTotal(addOns: AddOnLine[], days: number): number {
@@ -28,20 +46,22 @@ export function calculateAddOnTotal(addOns: AddOnLine[], days: number): number {
 
 export type BookingTotal = {
   days: number;
+  dailyRateMur: number;
   carTotalMur: number;
   addonsTotalMur: number;
   totalMur: number;
 };
 
 export function calculateBookingTotal(params: {
-  dailyRateMur: number;
+  rates: CategoryRates;
   pickupAt: Date | string;
   returnAt: Date | string;
   addOns?: AddOnLine[];
 }): BookingTotal {
   const days = calculateRentalDays(params.pickupAt, params.returnAt);
-  const carTotalMur = calculateCarTotal(params.dailyRateMur, days);
+  const dailyRateMur = selectDailyRate(params.rates, days);
+  const carTotalMur = dailyRateMur * days;
   const addonsTotalMur = calculateAddOnTotal(params.addOns ?? [], days);
 
-  return { days, carTotalMur, addonsTotalMur, totalMur: carTotalMur + addonsTotalMur };
+  return { days, dailyRateMur, carTotalMur, addonsTotalMur, totalMur: carTotalMur + addonsTotalMur };
 }

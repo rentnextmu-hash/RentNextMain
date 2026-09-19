@@ -44,4 +44,36 @@
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
   --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
   --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.12);
+
+  /* Fleet showcase — one two-stop vertical gradient per vehicle class,
+     darker at the top, tuned to sit beside the brand navy/teal above
+     without clashing. Canonical values live in
+     components/public/fleetPalette.ts (FLEET_PALETTE), which the
+     carousel actually reads from — it crossfades between slides via two
+     stacked gradient layers and an opacity transition, not a CSS colour
+     interpolation, so it needs real hex values rather than var()
+     indirection. These custom properties are kept here as the documented
+     design reference; if you change one, change both. */
+  --fleet-mini-from: #3b4a6b;
+  --fleet-mini-to: #6b7fa8;
+  --fleet-economy-from: #0e6b6b;
+  --fleet-economy-to: #31cfc4;
+  --fleet-economy-elite-from: #145a7a;
+  --fleet-economy-elite-to: #3fa9c9;
+  --fleet-standard-from: #2f5d50;
+  --fleet-standard-to: #6fa88c;
+  --fleet-compact-from: #1f4f63;
+  --fleet-compact-to: #4e9ba8;
+  --fleet-sedan-from: #2b3a55;
+  --fleet-sedan-to: #5c7099;
+  --fleet-intermediate-from: #4a4460;
+  --fleet-intermediate-to: #8479a6;
+  --fleet-compact-elite-from: #5a3b52;
+  --fleet-compact-elite-to: #a0688c;
+  --fleet-luxury-from: #0f1b29;
+  --fleet-luxury-to: #2e4460;
+  --fleet-convertible-from: #a34a2e;
+  --fleet-convertible-to: #e8834f;
+  --fleet-pickup-from: #4a3a22;
+  --fleet-pickup-to: #96764a;
 }

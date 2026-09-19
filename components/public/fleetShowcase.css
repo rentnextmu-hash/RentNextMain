@@ -1,0 +1,56 @@
+/* Keyframes for FleetShowcase — transform/opacity only. Classes that use
+   these are only applied by the component when the OS doesn't request
+   reduced motion, but the media query below is kept too as a defence in
+   depth (e.g. if a class briefly renders before that check settles). */
+
+@keyframes rn-car-float {
+  0%,
+  100% {
+    transform: translateY(-8px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes rn-watermark-drift {
+  0% {
+    transform: translateX(-2%);
+  }
+  50% {
+    transform: translateX(2%);
+  }
+  100% {
+    transform: translateX(-2%);
+  }
+}
+
+@keyframes rn-motif-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.03);
+  }
+}
+
+.rn-car-float {
+  animation: rn-car-float 6s ease-in-out infinite;
+}
+
+.rn-watermark-drift {
+  animation: rn-watermark-drift 20s ease-in-out infinite;
+}
+
+.rn-motif-float {
+  animation: rn-motif-float 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rn-car-float,
+  .rn-watermark-drift,
+  .rn-motif-float {
+    animation: none !important;
+  }
+}

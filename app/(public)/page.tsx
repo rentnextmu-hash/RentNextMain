@@ -72,7 +72,7 @@ export default async function HomePage() {
                 transmission: car.transmission,
                 seats: car.seats,
                 airConditioning: car.air_conditioning,
-                dailyRateMur: car.daily_rate_mur,
+                dailyRateMur: car.daily_rate_mur ?? car.rate_6_plus_mur,
                 imagePath: car.image_path,
               }}
             />

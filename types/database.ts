@@ -494,9 +494,10 @@ export type Database = {
       vehicle_categories: {
         Row: {
           air_conditioning: boolean
+          best_for: string | null
           category: string
           created_at: string
-          daily_rate_mur: number
+          daily_rate_mur: number | null
           description: string | null
           display_order: number
           doors: number
@@ -505,19 +506,26 @@ export type Database = {
           id: string
           image_path: string | null
           is_active: boolean
+          luggage_capacity: number | null
           make: string | null
           model: string | null
           name: string
+          rate_1_2_mur: number
+          rate_3_5_mur: number
+          rate_6_plus_mur: number
+          rate_class: string | null
           seats: number
           slug: string
+          tagline: string | null
           transmission: string
           updated_at: string
         }
         Insert: {
           air_conditioning?: boolean
+          best_for?: string | null
           category: string
           created_at?: string
-          daily_rate_mur: number
+          daily_rate_mur?: number | null
           description?: string | null
           display_order?: number
           doors?: number
@@ -526,19 +534,26 @@ export type Database = {
           id?: string
           image_path?: string | null
           is_active?: boolean
+          luggage_capacity?: number | null
           make?: string | null
           model?: string | null
           name: string
+          rate_1_2_mur: number
+          rate_3_5_mur: number
+          rate_6_plus_mur: number
+          rate_class?: string | null
           seats?: number
           slug: string
+          tagline?: string | null
           transmission?: string
           updated_at?: string
         }
         Update: {
           air_conditioning?: boolean
+          best_for?: string | null
           category?: string
           created_at?: string
-          daily_rate_mur?: number
+          daily_rate_mur?: number | null
           description?: string | null
           display_order?: number
           doors?: number
@@ -547,11 +562,17 @@ export type Database = {
           id?: string
           image_path?: string | null
           is_active?: boolean
+          luggage_capacity?: number | null
           make?: string | null
           model?: string | null
           name?: string
+          rate_1_2_mur?: number
+          rate_3_5_mur?: number
+          rate_6_plus_mur?: number
+          rate_class?: string | null
           seats?: number
           slug?: string
+          tagline?: string | null
           transmission?: string
           updated_at?: string
         }
@@ -622,7 +643,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      category_available_counts: {
+        Row: {
+          available_count: number | null
+          category_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       generate_booking_reference: { Args: never; Returns: string }

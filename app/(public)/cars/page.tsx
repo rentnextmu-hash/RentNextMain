@@ -106,7 +106,7 @@ export default async function CarsPage({ searchParams }: { searchParams: Promise
                 transmission: car.transmission,
                 seats: car.seats,
                 airConditioning: car.air_conditioning,
-                dailyRateMur: car.daily_rate_mur,
+                dailyRateMur: car.daily_rate_mur ?? car.rate_6_plus_mur,
                 imagePath: car.image_path,
                 availableCount: car.availableCount,
               }}

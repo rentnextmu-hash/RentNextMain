@@ -48,3 +48,36 @@ export async function getCategoriesWithAvailabilityCount(
     availableCount: countByCategory.get(category.id) ?? 0,
   }));
 }
+
+/**
+ * Fleet-wide "available now" count per category — not filtered by
+ * location or date range (unlike getCategoriesWithAvailabilityCount,
+ * which answers "can I book this for these exact dates at this branch").
+ * Used by the fleet showcase carousel's "X available now" line, which is
+ * a general signal of how much stock exists, not a live booking-window
+ * check.
+ *
+ * Reads from the category_available_counts VIEW, not the vehicles table
+ * directly — vehicles is intentionally staff-only RLS (no registration
+ * plates on the public site), so an anon session querying it directly
+ * gets zero rows back, silently. The view exposes only an aggregate
+ * count and is explicitly grant-ed to anon (see migration 0005).
+ */
+export async function getCategoriesWithFleetAvailability(supabase: Client): Promise<CategoryWithAvailability[]> {
+  const [categories, { data: counts, error }] = await Promise.all([
+    getActiveCategories(supabase),
+    supabase.from("category_available_counts").select("category_id, available_count"),
+  ]);
+
+  if (error) throw error;
+
+  const countByCategory = new Map<string, number>();
+  for (const row of counts ?? []) {
+    if (row.category_id) countByCategory.set(row.category_id, row.available_count ?? 0);
+  }
+
+  return categories.map((category) => ({
+    ...category,
+    availableCount: countByCategory.get(category.id) ?? 0,
+  }));
+}
