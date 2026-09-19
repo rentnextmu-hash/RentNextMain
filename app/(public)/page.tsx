@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Car, Building2, ShieldCheck, Headset } from "lucide-react";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { getActiveCategories } from "@/lib/queries/categories";
+import { getActiveCategories, getCategoriesWithFleetAvailability } from "@/lib/queries/categories";
 import { getActiveLocations } from "@/lib/queries/locations";
 import { CarCard, CLASS_ORDER } from "@/components/public/CarCard";
 import { LocationCard } from "@/components/public/LocationCard";
 import { SearchWidget } from "@/components/public/SearchWidget";
+import { FleetShowcase, type FleetShowcaseVehicle } from "@/components/public/FleetShowcase";
 import type { VehicleCategoryClass } from "@/types/enums";
 
 export const metadata: Metadata = {
@@ -16,14 +17,39 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const [categories, locations] = await Promise.all([
+  const [categories, locations, showcaseCategories] = await Promise.all([
     getActiveCategories(supabase),
     getActiveLocations(supabase),
+    getCategoriesWithFleetAvailability(supabase),
   ]);
 
   const fleet = [...categories].sort(
     (a, b) => CLASS_ORDER.indexOf(a.category as VehicleCategoryClass) - CLASS_ORDER.indexOf(b.category as VehicleCategoryClass),
   );
+
+  const showcaseVehicles: FleetShowcaseVehicle[] = showcaseCategories
+    .slice()
+    .sort((a, b) => a.display_order - b.display_order)
+    .map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      category: c.category as VehicleCategoryClass,
+      rateClass: c.rate_class,
+      tagline: c.tagline,
+      description: c.description,
+      bestFor: c.best_for,
+      seats: c.seats,
+      doors: c.doors,
+      transmission: c.transmission,
+      airConditioning: c.air_conditioning,
+      luggageCapacity: c.luggage_capacity,
+      imagePath: c.image_path,
+      rate1To2Mur: c.rate_1_2_mur,
+      rate3To5Mur: c.rate_3_5_mur,
+      rate6PlusMur: c.rate_6_plus_mur,
+      availableCount: c.availableCount,
+    }));
 
   return (
     <>
@@ -50,7 +76,12 @@ export default async function HomePage() {
         <SearchWidget locations={locations.map((l) => ({ slug: l.slug, name: l.name }))} />
       </div>
 
-      {/* Fleet */}
+      {/* Fleet showcase — the emotional showcase, full-bleed */}
+      <div className="relative z-0 mt-16">
+        <FleetShowcase vehicles={showcaseVehicles} />
+      </div>
+
+      {/* Our Vehicles grid — the practical browse entry point */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between">
           <div>
