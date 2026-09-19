@@ -91,6 +91,19 @@ Next.js is pinned to **15.5.x** (not 16 — `create-next-app@latest` defaults to
 - `lib/validation.ts` still an empty placeholder — first real schemas land with the booking flow in B5.
 - Verified with `tsc --noEmit`, `eslint`, and `next build` — all clean, against the real generated types.
 
-**Not started:** B2 (design system) and everything after.
+**Blocks B2/B3/B6/B7/B8 — "Demo Fast Track" (client-facing pages only, out of blueprint order).**
 
-**Next up:** B2 — design system (P2.1 tokens/Tailwind, P2.2 UI primitives + kitchen sink, P2.3 public/admin shells).
+At the client's request, jumped ahead to build a curated, aesthetic subset of pages to demo — rather than the full B2→B9 sequence. Everything below goes through the real Supabase query layer and the same folder/component conventions as the rest of the plan, so there's no rework to unwind later; it's a page-selection shortcut, not a quality shortcut. Verified visually via Playwright screenshots (installed temporarily, then removed — not a project dependency) against the live seeded data, signed in as a real staff account.
+
+Built:
+- **Design tokens** (`styles/tokens.css`, wired into `app/globals.css` via Tailwind v4's `@theme inline`) and three fonts (Fraunces/heading, Inter/body, JetBrains Mono/mono) loaded in `app/layout.tsx`.
+- **UI primitives** (`components/ui/`): Button, Input, Select, Badge, StatusPill (single source of truth for status colour), Spinner, EmptyState. Trimmed from the full blueprint inventory — no Modal/Drawer/Toast/DatePicker/Textarea/Checkbox yet, since nothing built so far needs them.
+- **Public shell** (`components/public/Navbar.tsx`, `Footer.tsx`) and **admin shell** (`components/admin/Sidebar.tsx`, `Topbar.tsx`, `SignOutButton.tsx`, `StatCard.tsx`). Admin sidebar shows every planned nav item; unbuilt ones (Bookings, Locations, Hotels, Customers, Payments, Reports, Settings) are visibly disabled with a "Soon" tag rather than linking to 404s.
+- **Public pages**: homepage (`app/(public)/page.tsx` — hero, functional SearchWidget, category tiles, featured cars, locations, trust section) and catalogue (`app/(public)/cars/page.tsx` — class-filter pills via URL params; when a search was performed, wires into `getCategoriesWithAvailabilityCount` for real live availability against seeded bookings, not decorative).
+- **Staff auth**: `lib/auth.ts` (`getCurrentStaff()`), `app/login/page.tsx` (client component, `signInWithPassword` + active-profile check). A real staff account exists: `rentnext.mu@gmail.com`, role `owner`.
+- **Admin pages**: dashboard overview (`app/(admin)/admin/page.tsx` — stat cards, today's activity, recent bookings, upcoming returns), fleet list (`app/(admin)/admin/fleet/page.tsx`), and the Gantt-style fleet calendar (`app/(admin)/admin/calendar/page.tsx` — hand-built with CSS Grid, sticky frozen vehicle column via `position: sticky` inside one scrollable grid, explicit `gridRow`/`gridColumn` placement per booking block, maintenance rows shown with a repeating-gradient hatch). 14-day window from today, grouped by location display_order.
+- No vehicle/location images exist in Storage yet (P9.3 not done), so `CarCard`/`LocationCard` use tasteful per-category gradient placeholders with a lucide `Car`/`MapPin` icon rather than guessing at external image URLs.
+
+**Explicitly not built yet** (deferred, not half-built): booking flow (5-step + Edge Functions), category detail page (`/cars/[slug]`), location SEO pages, hotels admin, settings page, bookings list/detail admin pages, sitemap/metadata/JSON-LD, Storage/image upload, customer accounts, payments UI beyond the dashboard's read-only view.
+
+**Next up:** either continue the fast-track (booking flow is the natural next piece, since it's the other half of the demo script), or return to the blueprint's own P-number order for full V1 completeness — ask before assuming which.
