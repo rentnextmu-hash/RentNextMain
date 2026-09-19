@@ -1,12 +1,18 @@
 :root {
-  /* Brand — Rent Next Car Hire's real navy + teal, sampled from the
-     logo mark and marketing materials (Price List.pdf). */
-  --color-primary: #0c1728;
-  --color-primary-hover: #16273f;
-  --color-accent: #2dc1b5;
-  --color-accent-hover: #25a89d;
+  /* Brand — Rent Next Car Hire's real navy + teal. Navy is the dominant
+     brand surface (header, footer, splash, admin sidebar); teal is for
+     CTAs and highlights. Teal on white fails contrast for body text —
+     only use it on navy, or for large text, icons, borders and button
+     fills with navy text on top. Replace with values sampled from the
+     logo SVG if/when it's provided. */
+  --color-primary: #0e2436;
+  --color-primary-deep: #0a1b29;
+  --color-primary-hover: #15324a;
+  --color-accent: #31cfc4;
+  --color-accent-hover: #28b4aa;
 
-  /* Public surfaces */
+  /* Public surfaces — unaffected by the navy/teal brand pass; these stay
+     light for page content. */
   --color-background: #fdfcfa;
   --color-surface: #ffffff;
   --color-surface-alt: #f4f1ec;
@@ -15,7 +21,7 @@
   /* Admin surfaces */
   --color-admin-bg: #f6f7f9;
   --color-admin-surface: #ffffff;
-  --color-admin-sidebar: #0c1728;
+  --color-admin-sidebar: #0a1b29;
   --color-admin-border: #e2e6ec;
 
   /* Text */

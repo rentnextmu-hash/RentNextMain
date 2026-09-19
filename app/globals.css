@@ -4,6 +4,7 @@
 @theme inline {
   /* Brand */
   --color-primary: var(--color-primary);
+  --color-primary-deep: var(--color-primary-deep);
   --color-primary-hover: var(--color-primary-hover);
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
