@@ -74,14 +74,23 @@ Next.js is pinned to **15.5.x** (not 16 — `create-next-app@latest` defaults to
 - Full folder structure created per the blueprint (see above).
 - Supabase clients wired for App Router via `@supabase/ssr`: `lib/supabase/client.ts` (browser), `lib/supabase/server.ts` (RSC, cookie-aware), `lib/supabase/middleware.ts` (session refresh).
 - Root `middleware.ts` refreshes the session on every request and redirects unauthenticated visitors away from `/admin/*` to `/login?next=...`.
-- `.env.local.example` created — **not yet filled in**; no live Supabase project connected yet.
-- `types/database.ts` is a placeholder stub (empty `Database` type) until P1.1's migration exists and `npm run types:gen` is run against a real project.
 - `lib/format.ts` fully implemented (`formatMUR`, `formatDate`, `formatDateTime`, `formatDateRange`, `daysBetween`), Mauritius-timezone aware.
-- `lib/pricing.ts`, `lib/availability.ts`, `lib/validation.ts` are empty placeholders — real implementations land in P1.4.
 - `lib/utils.ts` has `cn()` ready early (harmless to have before P2.1).
 - No pages or UI built yet — by design, this block is foundations-only. `app/(public)/page.tsx` and `app/(admin)/admin/layout.tsx` etc. do not exist yet; visiting `/` currently 404s.
-- Git initialized, first commit made.
 
-**Not started:** B1 (data layer — schema/RLS/seed/types), B2 (design system), and everything after.
+**Block B1 — Data layer: SQL and code written, NOT YET APPLIED to the live database.**
 
-**Next up:** P1.1 — schema migration (`supabase/migrations/0001_initial_schema.sql`). Needs live Supabase credentials in `.env.local` before it can actually be applied, though the migration SQL itself can be written without them.
+- Supabase project connected: `nylapoygcfuyztkictyi` (URL + anon key in `.env.local`, gitignored). `SUPABASE_SERVICE_ROLE_KEY` still blank — needed before the `create-booking`/`send-booking-email` Edge Functions in P5.3/P5.4.
+- `supabase/migrations/0001_initial_schema.sql` — all 11 tables from the blueprint's data model plus a `booking_reference_counters` side table backing `generate_booking_reference()`.
+- `supabase/migrations/0002_rls.sql` — RLS on every table, `is_staff()`/`is_role()` helpers, the auth.users → profiles provisioning trigger.
+- `supabase/seed.sql` — full realistic Mauritian demo dataset (6 locations, 8 categories, 30 vehicles, 5 hotels, 6 add-ons, 25 customers, 25 bookings). Catalogue/vehicle rows upsert; bookings/customers/payments/booking_add_ons clear-and-reinsert on every run so dates stay relative to "now". Hand-verified for referential integrity and pricing arithmetic with a standalone script (no live DB available to actually run it against yet).
+- **Neither the Supabase CLI nor `psql` is available in this environment**, and there's no way to execute arbitrary DDL through the anon/service REST API — so these three SQL files have not been applied to the live project. **Action needed from you:** paste `0001_initial_schema.sql`, then `0002_rls.sql`, then `seed.sql`, into the Supabase SQL Editor for project `nylapoygcfuyztkictyi`, in that order. (Also note: `seed.sql` never creates a staff login — create your own user via Supabase Auth, e.g. the dashboard's "Add user", so `/login` in B6 has an account to use. The `handle_new_user` trigger in `0002_rls.sql` gives any new `auth.users` row a `staff`-role `profiles` row automatically; promote yourself to `owner` afterwards with a manual `update profiles set role = 'owner' where id = '<your-user-id>'`.)
+- `types/database.ts` is hand-written to match the two migrations exactly (Supabase CLI generation needs an authenticated `supabase login`, not available headlessly here). Once you've applied the migrations and can run `npx supabase login` yourself, regenerate for real with `npm run types:gen` and it should diff cleanly against this file — if it doesn't, trust the generated one.
+- `lib/pricing.ts`, `lib/availability.ts` fully implemented — pricing is pure functions with no DB access; availability takes a Supabase client and implements the single `[pickup_at, return_at)` overlap check used everywhere.
+- `lib/queries/{categories,locations,vehicles,bookings,dashboard,hotels}.ts` — typed data-access functions per domain, joined rows, client passed in as first arg.
+- `lib/validation.ts` still an empty placeholder — first real schemas land with the booking flow in B5.
+- Verified with `tsc --noEmit`, `eslint`, and `next build` — all clean. None of this has been exercised against live data yet since the migrations aren't applied.
+
+**Not started:** B2 (design system) and everything after.
+
+**Next up, once you've run the SQL in the Supabase SQL Editor:** B2 — design system (P2.1 tokens/Tailwind, P2.2 UI primitives + kitchen sink, P2.3 public/admin shells).
