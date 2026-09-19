@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { CarLoader } from "@/components/public/CarLoader";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 type ButtonSize = "sm" | "md" | "lg";
@@ -43,14 +44,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       )}
       {...props}
     >
-      {loading ? (
-        <span
-          className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
-          aria-hidden="true"
-        />
-      ) : (
-        icon
-      )}
+      {loading ? <CarLoader size="sm" className="shrink-0" /> : icon}
       {children}
     </button>
   );
