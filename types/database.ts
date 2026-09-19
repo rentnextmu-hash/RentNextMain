@@ -1,408 +1,762 @@
-// Hand-written to exactly match supabase/migrations/0001_initial_schema.sql
-// and 0002_rls.sql, in the shape the Supabase CLI's `gen types typescript`
-// produces. Regenerate for real with `npm run types:gen` once the
-// migrations have been applied to the linked project (needs `supabase
-// login` first) — this file should then diff cleanly against that output.
-// Until then, this is the source of truth the query layer builds against.
-
 export type Json =
   | string
   | number
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[];
-
-export type VehicleCategoryClass = "economy" | "comfort" | "suv" | "premium";
-export type Transmission = "automatic" | "manual";
-export type FuelType = "petrol" | "diesel" | "hybrid" | "electric";
-export type VehicleStatus = "available" | "booked" | "maintenance" | "inactive";
-export type LocationType = "branch" | "airport" | "hotel" | "custom";
-export type ContractStatus = "active" | "pending" | "inactive";
-export type BookingStatus = "requested" | "confirmed" | "active" | "completed" | "cancelled";
-export type BookingSource = "website" | "phone" | "hotel" | "walk_in";
-export type AddOnPriceType = "per_day" | "per_booking";
-export type PaymentMethod = "cash" | "card" | "transfer" | "online";
-export type PaymentStatus = "pending" | "paid" | "refunded" | "failed";
-export type StaffRole = "owner" | "manager" | "staff";
+  | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          full_name: string | null;
-          role: StaffRole;
-          location_id: string | null;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id: string;
-          full_name?: string | null;
-          role?: StaffRole;
-          location_id?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
-        Relationships: [];
-      };
-      locations: {
-        Row: {
-          id: string;
-          slug: string;
-          name: string;
-          type: LocationType;
-          region: string | null;
-          address: string | null;
-          latitude: number | null;
-          longitude: number | null;
-          is_pickup_point: boolean;
-          seo_title: string | null;
-          seo_description: string | null;
-          intro_content: string | null;
-          image_path: string | null;
-          display_order: number;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          slug: string;
-          name: string;
-          type?: LocationType;
-          region?: string | null;
-          address?: string | null;
-          latitude?: number | null;
-          longitude?: number | null;
-          is_pickup_point?: boolean;
-          seo_title?: string | null;
-          seo_description?: string | null;
-          intro_content?: string | null;
-          image_path?: string | null;
-          display_order?: number;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["locations"]["Insert"]>;
-        Relationships: [];
-      };
-      vehicle_categories: {
-        Row: {
-          id: string;
-          slug: string;
-          name: string;
-          make: string | null;
-          model: string | null;
-          category: VehicleCategoryClass;
-          transmission: Transmission;
-          seats: number;
-          doors: number;
-          fuel_type: FuelType;
-          air_conditioning: boolean;
-          daily_rate_mur: number;
-          description: string | null;
-          features: Json;
-          image_path: string | null;
-          display_order: number;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          slug: string;
-          name: string;
-          make?: string | null;
-          model?: string | null;
-          category: VehicleCategoryClass;
-          transmission?: Transmission;
-          seats?: number;
-          doors?: number;
-          fuel_type?: FuelType;
-          air_conditioning?: boolean;
-          daily_rate_mur: number;
-          description?: string | null;
-          features?: Json;
-          image_path?: string | null;
-          display_order?: number;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["vehicle_categories"]["Insert"]>;
-        Relationships: [];
-      };
-      vehicles: {
-        Row: {
-          id: string;
-          category_id: string;
-          code: string;
-          registration: string;
-          location_id: string;
-          status: VehicleStatus;
-          mileage_km: number;
-          year: number | null;
-          colour: string | null;
-          notes: string | null;
-          acquired_at: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          category_id: string;
-          code: string;
-          registration: string;
-          location_id: string;
-          status?: VehicleStatus;
-          mileage_km?: number;
-          year?: number | null;
-          colour?: string | null;
-          notes?: string | null;
-          acquired_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["vehicles"]["Insert"]>;
-        Relationships: [];
-      };
-      hotels: {
-        Row: {
-          id: string;
-          name: string;
-          slug: string;
-          location_id: string | null;
-          contact_name: string | null;
-          contact_email: string | null;
-          contact_phone: string | null;
-          contract_status: ContractStatus;
-          commission_rate: number;
-          pickup_notes: string | null;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          slug: string;
-          location_id?: string | null;
-          contact_name?: string | null;
-          contact_email?: string | null;
-          contact_phone?: string | null;
-          contract_status?: ContractStatus;
-          commission_rate?: number;
-          pickup_notes?: string | null;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["hotels"]["Insert"]>;
-        Relationships: [];
-      };
-      customers: {
-        Row: {
-          id: string;
-          first_name: string;
-          last_name: string;
-          email: string;
-          phone: string;
-          country: string | null;
-          hotel_id: string | null;
-          flight_number: string | null;
-          notes: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          first_name: string;
-          last_name: string;
-          email: string;
-          phone: string;
-          country?: string | null;
-          hotel_id?: string | null;
-          flight_number?: string | null;
-          notes?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["customers"]["Insert"]>;
-        Relationships: [];
-      };
       add_ons: {
         Row: {
-          id: string;
-          slug: string;
-          name: string;
-          description: string | null;
-          price_mur: number;
-          price_type: AddOnPriceType;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price_mur: number
+          price_type: string
+          slug: string
+          updated_at: string
+        }
         Insert: {
-          id?: string;
-          slug: string;
-          name: string;
-          description?: string | null;
-          price_mur: number;
-          price_type?: AddOnPriceType;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["add_ons"]["Insert"]>;
-        Relationships: [];
-      };
-      bookings: {
-        Row: {
-          id: string;
-          reference: string;
-          customer_id: string;
-          category_id: string;
-          vehicle_id: string | null;
-          pickup_location_id: string;
-          return_location_id: string;
-          pickup_at: string;
-          return_at: string;
-          days: number;
-          status: BookingStatus;
-          car_total_mur: number;
-          addons_total_mur: number;
-          total_mur: number;
-          source: BookingSource;
-          hotel_id: string | null;
-          notes: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          reference: string;
-          customer_id: string;
-          category_id: string;
-          vehicle_id?: string | null;
-          pickup_location_id: string;
-          return_location_id: string;
-          pickup_at: string;
-          return_at: string;
-          days: number;
-          status?: BookingStatus;
-          car_total_mur: number;
-          addons_total_mur?: number;
-          total_mur: number;
-          source?: BookingSource;
-          hotel_id?: string | null;
-          notes?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
-        Relationships: [];
-      };
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price_mur: number
+          price_type?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_mur?: number
+          price_type?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       booking_add_ons: {
         Row: {
-          id: string;
-          booking_id: string;
-          add_on_id: string;
-          quantity: number;
-          unit_price_mur: number;
-          total_mur: number;
-          created_at: string;
-          updated_at: string;
-        };
+          add_on_id: string
+          booking_id: string
+          created_at: string
+          id: string
+          quantity: number
+          total_mur: number
+          unit_price_mur: number
+          updated_at: string
+        }
         Insert: {
-          id?: string;
-          booking_id: string;
-          add_on_id: string;
-          quantity?: number;
-          unit_price_mur: number;
-          total_mur: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["booking_add_ons"]["Insert"]>;
-        Relationships: [];
-      };
-      payments: {
-        Row: {
-          id: string;
-          booking_id: string;
-          amount_mur: number;
-          method: PaymentMethod | null;
-          status: PaymentStatus;
-          reference: string | null;
-          paid_at: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          booking_id: string;
-          amount_mur: number;
-          method?: PaymentMethod | null;
-          status?: PaymentStatus;
-          reference?: string | null;
-          paid_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["payments"]["Insert"]>;
-        Relationships: [];
-      };
-      settings: {
-        Row: {
-          key: string;
-          value: Json;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          key: string;
-          value: Json;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Database["public"]["Tables"]["settings"]["Insert"]>;
-        Relationships: [];
-      };
+          add_on_id: string
+          booking_id: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          total_mur: number
+          unit_price_mur: number
+          updated_at?: string
+        }
+        Update: {
+          add_on_id?: string
+          booking_id?: string
+          created_at?: string
+          id?: string
+          quantity?: number
+          total_mur?: number
+          unit_price_mur?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_add_ons_add_on_id_fkey"
+            columns: ["add_on_id"]
+            isOneToOne: false
+            referencedRelation: "add_ons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_add_ons_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_reference_counters: {
         Row: {
-          reference_date: string;
-          last_sequence: number;
-        };
+          last_sequence: number
+          reference_date: string
+        }
         Insert: {
-          reference_date: string;
-          last_sequence?: number;
-        };
-        Update: Partial<Database["public"]["Tables"]["booking_reference_counters"]["Insert"]>;
-        Relationships: [];
-      };
-    };
-    Views: Record<string, never>;
+          last_sequence?: number
+          reference_date: string
+        }
+        Update: {
+          last_sequence?: number
+          reference_date?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          addons_total_mur: number
+          car_total_mur: number
+          category_id: string
+          created_at: string
+          customer_id: string
+          days: number
+          hotel_id: string | null
+          id: string
+          notes: string | null
+          pickup_at: string
+          pickup_location_id: string
+          reference: string
+          return_at: string
+          return_location_id: string
+          source: string
+          status: string
+          total_mur: number
+          updated_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          addons_total_mur?: number
+          car_total_mur: number
+          category_id: string
+          created_at?: string
+          customer_id: string
+          days: number
+          hotel_id?: string | null
+          id?: string
+          notes?: string | null
+          pickup_at: string
+          pickup_location_id: string
+          reference: string
+          return_at: string
+          return_location_id: string
+          source?: string
+          status?: string
+          total_mur: number
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          addons_total_mur?: number
+          car_total_mur?: number
+          category_id?: string
+          created_at?: string
+          customer_id?: string
+          days?: number
+          hotel_id?: string | null
+          id?: string
+          notes?: string | null
+          pickup_at?: string
+          pickup_location_id?: string
+          reference?: string
+          return_at?: string
+          return_location_id?: string
+          source?: string
+          status?: string
+          total_mur?: number
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_pickup_location_id_fkey"
+            columns: ["pickup_location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_return_location_id_fkey"
+            columns: ["return_location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          country: string | null
+          created_at: string
+          email: string
+          first_name: string
+          flight_number: string | null
+          hotel_id: string | null
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          flight_number?: string | null
+          hotel_id?: string | null
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          flight_number?: string | null
+          hotel_id?: string | null
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotels: {
+        Row: {
+          commission_rate: number
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          contract_status: string
+          created_at: string
+          id: string
+          is_active: boolean
+          location_id: string | null
+          name: string
+          pickup_notes: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          commission_rate?: number
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contract_status?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          name: string
+          pickup_notes?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          commission_rate?: number
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          contract_status?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          name?: string
+          pickup_notes?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotels_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          address: string | null
+          created_at: string
+          display_order: number
+          id: string
+          image_path: string | null
+          intro_content: string | null
+          is_active: boolean
+          is_pickup_point: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          region: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_path?: string | null
+          intro_content?: string | null
+          is_active?: boolean
+          is_pickup_point?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          region?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_path?: string | null
+          intro_content?: string | null
+          is_active?: boolean
+          is_pickup_point?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          region?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount_mur: number
+          booking_id: string
+          created_at: string
+          id: string
+          method: string | null
+          paid_at: string | null
+          reference: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_mur: number
+          booking_id: string
+          created_at?: string
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_mur?: number
+          booking_id?: string
+          created_at?: string
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          is_active: boolean
+          location_id: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          is_active?: boolean
+          location_id?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settings: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      vehicle_categories: {
+        Row: {
+          air_conditioning: boolean
+          category: string
+          created_at: string
+          daily_rate_mur: number
+          description: string | null
+          display_order: number
+          doors: number
+          features: Json
+          fuel_type: string
+          id: string
+          image_path: string | null
+          is_active: boolean
+          make: string | null
+          model: string | null
+          name: string
+          seats: number
+          slug: string
+          transmission: string
+          updated_at: string
+        }
+        Insert: {
+          air_conditioning?: boolean
+          category: string
+          created_at?: string
+          daily_rate_mur: number
+          description?: string | null
+          display_order?: number
+          doors?: number
+          features?: Json
+          fuel_type?: string
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          make?: string | null
+          model?: string | null
+          name: string
+          seats?: number
+          slug: string
+          transmission?: string
+          updated_at?: string
+        }
+        Update: {
+          air_conditioning?: boolean
+          category?: string
+          created_at?: string
+          daily_rate_mur?: number
+          description?: string | null
+          display_order?: number
+          doors?: number
+          features?: Json
+          fuel_type?: string
+          id?: string
+          image_path?: string | null
+          is_active?: boolean
+          make?: string | null
+          model?: string | null
+          name?: string
+          seats?: number
+          slug?: string
+          transmission?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      vehicles: {
+        Row: {
+          acquired_at: string | null
+          category_id: string
+          code: string
+          colour: string | null
+          created_at: string
+          id: string
+          location_id: string
+          mileage_km: number
+          notes: string | null
+          registration: string
+          status: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          acquired_at?: string | null
+          category_id: string
+          code: string
+          colour?: string | null
+          created_at?: string
+          id?: string
+          location_id: string
+          mileage_km?: number
+          notes?: string | null
+          registration: string
+          status?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          acquired_at?: string | null
+          category_id?: string
+          code?: string
+          colour?: string | null
+          created_at?: string
+          id?: string
+          location_id?: string
+          mileage_km?: number
+          notes?: string | null
+          registration?: string
+          status?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
-      generate_booking_reference: {
-        Args: Record<string, never>;
-        Returns: string;
-      };
-      is_staff: {
-        Args: Record<string, never>;
-        Returns: boolean;
-      };
-      is_role: {
-        Args: { roles: string[] };
-        Returns: boolean;
-      };
-    };
-    Enums: Record<string, never>;
-  };
-};
+      generate_booking_reference: { Args: never; Returns: string }
+      is_role: { Args: { roles: string[] }; Returns: boolean }
+      is_staff: { Args: never; Returns: boolean }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
+import type { VehicleStatus } from "@/types/enums";
 
 type Client = SupabaseClient<Database>;
 
@@ -18,7 +19,7 @@ export async function getFleetStats(supabase: Client): Promise<FleetStats> {
   const stats: FleetStats = { total: 0, available: 0, booked: 0, maintenance: 0, inactive: 0 };
   for (const v of data ?? []) {
     stats.total += 1;
-    stats[v.status] += 1;
+    stats[v.status as VehicleStatus] += 1;
   }
   return stats;
 }

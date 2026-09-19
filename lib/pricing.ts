@@ -3,7 +3,7 @@
 // admin manual-booking form must import from here rather than
 // re-implementing any of this.
 import { daysBetween } from "@/lib/format";
-import type { AddOnPriceType } from "@/types/database";
+import type { AddOnPriceType } from "@/types/enums";
 
 export type AddOnLine = {
   priceMur: number;

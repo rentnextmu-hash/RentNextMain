@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database, VehicleStatus } from "@/types/database";
+import type { Database } from "@/types/database";
+import type { VehicleStatus } from "@/types/enums";
 
 type Client = SupabaseClient<Database>;
 export type Vehicle = Database["public"]["Tables"]["vehicles"]["Row"];

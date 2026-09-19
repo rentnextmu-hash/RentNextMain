@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database, BookingStatus } from "@/types/database";
+import type { Database } from "@/types/database";
+import type { BookingStatus } from "@/types/enums";
 
 type Client = SupabaseClient<Database>;
 export type Booking = Database["public"]["Tables"]["bookings"]["Row"];

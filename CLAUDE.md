@@ -78,19 +78,19 @@ Next.js is pinned to **15.5.x** (not 16 — `create-next-app@latest` defaults to
 - `lib/utils.ts` has `cn()` ready early (harmless to have before P2.1).
 - No pages or UI built yet — by design, this block is foundations-only. `app/(public)/page.tsx` and `app/(admin)/admin/layout.tsx` etc. do not exist yet; visiting `/` currently 404s.
 
-**Block B1 — Data layer: SQL and code written, NOT YET APPLIED to the live database.**
+**Block B1 — Data layer: complete, applied to the live database.**
 
-- Supabase project connected: `nylapoygcfuyztkictyi` (URL + anon key in `.env.local`, gitignored). `SUPABASE_SERVICE_ROLE_KEY` still blank — needed before the `create-booking`/`send-booking-email` Edge Functions in P5.3/P5.4.
-- `supabase/migrations/0001_initial_schema.sql` — all 11 tables from the blueprint's data model plus a `booking_reference_counters` side table backing `generate_booking_reference()`.
-- `supabase/migrations/0002_rls.sql` — RLS on every table, `is_staff()`/`is_role()` helpers, the auth.users → profiles provisioning trigger.
-- `supabase/seed.sql` — full realistic Mauritian demo dataset (6 locations, 8 categories, 30 vehicles, 5 hotels, 6 add-ons, 25 customers, 25 bookings). Catalogue/vehicle rows upsert; bookings/customers/payments/booking_add_ons clear-and-reinsert on every run so dates stay relative to "now". Hand-verified for referential integrity and pricing arithmetic with a standalone script (no live DB available to actually run it against yet).
-- **Neither the Supabase CLI nor `psql` is available in this environment**, and there's no way to execute arbitrary DDL through the anon/service REST API — so these three SQL files have not been applied to the live project. **Action needed from you:** paste `0001_initial_schema.sql`, then `0002_rls.sql`, then `seed.sql`, into the Supabase SQL Editor for project `nylapoygcfuyztkictyi`, in that order. (Also note: `seed.sql` never creates a staff login — create your own user via Supabase Auth, e.g. the dashboard's "Add user", so `/login` in B6 has an account to use. The `handle_new_user` trigger in `0002_rls.sql` gives any new `auth.users` row a `staff`-role `profiles` row automatically; promote yourself to `owner` afterwards with a manual `update profiles set role = 'owner' where id = '<your-user-id>'`.)
-- `types/database.ts` is hand-written to match the two migrations exactly (Supabase CLI generation needs an authenticated `supabase login`, not available headlessly here). Once you've applied the migrations and can run `npx supabase login` yourself, regenerate for real with `npm run types:gen` and it should diff cleanly against this file — if it doesn't, trust the generated one.
+- Supabase project connected and linked: `nylapoygcfuyztkictyi` (org `rentnextmu-hash`, project `rentnext-main`). URL + anon key in `.env.local` (gitignored). `SUPABASE_SERVICE_ROLE_KEY` still blank — needed before the `create-booking`/`send-booking-email` Edge Functions in P5.3/P5.4.
+- `supabase/migrations/0001_initial_schema.sql` and `0002_rls.sql` — applied via `supabase db push` (using a Supabase personal access token for non-interactive CLI auth, since browser-based `supabase login` isn't possible headlessly). All 11 tables, RLS on every table, `is_staff()`/`is_role()` helpers, the auth.users → profiles provisioning trigger.
+- `supabase/seed.sql` — applied via `supabase db query --linked -f supabase/seed.sql`. Row counts verified live: 6 locations, 8 categories, 30 vehicles, 5 hotels, 6 add-ons, 25 customers, 25 bookings, 20 booking_add_ons, 23 payments, 6 settings — all exactly as designed. RLS spot-checked against the anon key: `vehicle_categories` readable, `vehicles` correctly returns empty.
+- **No staff login exists yet** — `seed.sql` intentionally never touches `auth.users`/`profiles`. Before B6 (staff auth) is exercised for real, create a user via Supabase Auth (dashboard → Authentication → Add user); the `handle_new_user` trigger gives it a `staff` profile automatically, then promote with `update profiles set role = 'owner' where id = '<user-id>'`.
+- `types/database.ts` is the **real** CLI-generated output (`npm run types:gen`, now works locally — `supabase` is a devDependency, just needs `SUPABASE_ACCESS_TOKEN` set or `supabase login` run once). Regenerate this after every future migration.
+- `types/enums.ts` — hand-maintained literal-union types (`VehicleStatus`, `BookingStatus`, etc.) for every `text + check` column. The schema uses check constraints rather than native Postgres enums, so the generator can only type those columns as plain `string`; keep this file in sync manually if the CHECK constraints change.
 - `lib/pricing.ts`, `lib/availability.ts` fully implemented — pricing is pure functions with no DB access; availability takes a Supabase client and implements the single `[pickup_at, return_at)` overlap check used everywhere.
 - `lib/queries/{categories,locations,vehicles,bookings,dashboard,hotels}.ts` — typed data-access functions per domain, joined rows, client passed in as first arg.
 - `lib/validation.ts` still an empty placeholder — first real schemas land with the booking flow in B5.
-- Verified with `tsc --noEmit`, `eslint`, and `next build` — all clean. None of this has been exercised against live data yet since the migrations aren't applied.
+- Verified with `tsc --noEmit`, `eslint`, and `next build` — all clean, against the real generated types.
 
 **Not started:** B2 (design system) and everything after.
 
-**Next up, once you've run the SQL in the Supabase SQL Editor:** B2 — design system (P2.1 tokens/Tailwind, P2.2 UI primitives + kitchen sink, P2.3 public/admin shells).
+**Next up:** B2 — design system (P2.1 tokens/Tailwind, P2.2 UI primitives + kitchen sink, P2.3 public/admin shells).
