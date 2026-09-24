@@ -28,12 +28,14 @@ export function RecordPaymentForm({ bookingId, outstandingMur }: { bookingId: st
   return (
     <form
       ref={formRef}
-      action={(formData) =>
+      onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
         run(
           () => recordPayment(bookingId, formData),
           () => setOpen(false),
-        )
-      }
+        );
+      }}
       className="grid grid-cols-1 gap-3 rounded-[var(--radius-md)] border border-admin-border p-4 sm:grid-cols-3 print:hidden"
     >
       <Input

@@ -135,9 +135,60 @@ export const recordPaymentSchema = z.object({
 });
 
 export const completeBookingSchema = z.object({
-  returnMileageKm: z.coerce.number().int("Whole kilometres only.").min(0).max(2_000_000),
+  returnMileageKm: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+    z.coerce.number("Enter the mileage on return.").int("Whole kilometres only.").min(0).max(2_000_000),
+  ),
 });
 
 export const internalNotesSchema = z.object({
   notes: z.string().max(5000, "Keep notes under 5,000 characters."),
+});
+
+// ── Fleet ──────────────────────────────────────────────────────────────
+
+// Form fields arrive as "" when left blank; treat that as "not given".
+const blankToUndefined = (v: unknown) => (typeof v === "string" && v.trim() === "" ? undefined : v);
+
+/** "VITZ-011": model prefix, dash, at least three digits. */
+export const VEHICLE_CODE_PATTERN = /^[A-Z0-9]+-\d{3,}$/;
+
+export const vehicleFormSchema = z.object({
+  categoryId: z.guid("Choose a category."),
+  registration: z
+    .string()
+    .trim()
+    .transform((v) => v.toUpperCase().replace(/\s+/g, " "))
+    .pipe(
+      z
+        .string()
+        .min(2, "Enter the registration plate.")
+        .max(20)
+        .regex(/^[A-Z0-9 -]+$/, "Letters, numbers and spaces only, e.g. 1101 GB 23."),
+    ),
+  code: z
+    .string()
+    .trim()
+    .transform((v) => v.toUpperCase())
+    .pipe(z.string().regex(VEHICLE_CODE_PATTERN, "Use the MODEL-NNN format, e.g. VITZ-011.")),
+  locationId: z.guid("Choose a location."),
+  status: z.enum(["available", "booked", "maintenance", "inactive"]),
+  // Blank must be an error, not 0 — z.coerce.number() alone turns "" into 0.
+  mileageKm: z.preprocess(
+    blankToUndefined,
+    z.coerce.number("Enter the mileage.").int("Whole kilometres only.").min(0).max(2_000_000),
+  ),
+  year: z.preprocess(
+    blankToUndefined,
+    z.coerce.number().int().min(1990, "Year looks too early.").max(new Date().getFullYear() + 1).optional(),
+  ),
+  colour: z.preprocess(blankToUndefined, z.string().trim().max(40).optional()),
+  acquiredAt: z.preprocess(blankToUndefined, z.iso.date("Enter a valid date.").optional()),
+  notes: z.preprocess(blankToUndefined, z.string().trim().max(2000).optional()),
+});
+
+export type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
+
+export const vehicleStatusSchema = z.object({
+  status: z.enum(["available", "booked", "maintenance", "inactive"], "Choose a status."),
 });

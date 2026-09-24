@@ -189,7 +189,11 @@ export function BookingActions({ booking, vehicles }: { booking: ActionBooking; 
         }
       >
         <form
-          action={(formData) => run(() => completeBooking(booking.id, formData), close, "complete")}
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            run(() => completeBooking(booking.id, formData), close, "complete");
+          }}
           className="space-y-4"
         >
           <Input

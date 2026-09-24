@@ -163,4 +163,12 @@ Modelled on drinkbaie.com's product carousel: one vehicle at a time, full-bleed,
 - Calendar booking blocks and dashboard recent-booking references now link to the detail page. Sidebar "Bookings" enabled.
 - Verified with a local GoTrue + PostgREST + Deno gateway (host networking; see B5 note) and a signed-in Playwright run of the full staff workflow, desktop + 1024px tablet.
 
-**Next up:** P8.4 manual booking creation (the "+ New booking" counter/phone form) and P7.2 add-vehicle (the demo's live "fleet goes from 30 to 31" moment).
+**Block B7 — Vehicle detail + add/edit (P7.2): complete (no migration needed).**
+
+- `/admin/fleet/[id]`: header (code, status, Edit / Change status), details, "On rent now" / "Next booking" card, quick stats (`vehicleStats()` in `lib/queries/vehicles.ts` — confirmed/active/completed bookings only; revenue is stored booking totals, never re-priced), booking history, honest maintenance-scheduling placeholder. Fleet list codes link here.
+- Add/edit in a right-hand `Drawer` (`components/admin/fleet/VehicleForm.tsx`) from both the list and the detail page: code auto-suggested per category (`suggestVehicleCode()` — the category's existing prefix, else derived from the model; next number across the whole fleet), friendly uniqueness errors for code and registration (checked first, and the `23505` race still mapped), `vehicleFormSchema` in `lib/validation.ts`, success toast "VITZ-004 added to Grand Baie", revalidates fleet/calendar/dashboard. Change-status dialog warns when an open booking still holds the car.
+- Writes need owner or manager: new `requireRole()` in `lib/auth.ts` (server actions in `app/(admin)/admin/fleet/actions.ts`). RLS alone would let any staff write.
+- New primitives: `Drawer`, `Toast`. Gotchas fixed: React 19 resets `<form action={fn}>` after the action even on validation errors (lost input) — forms now submit via `onSubmit` + `new FormData()`; `z.coerce.number()` turns a blank field into 0 — blank mileage now errors.
+- Verified locally (GoTrue + PostgREST + Deno gateway, owner and staff users): demo Act 3 end to end — fleet 24 → 25, dashboard count updates, public check-availability for Vitz at Grand Baie 1 → 2, and back to 1 when set to maintenance; staff role refused.
+
+**Next up:** P8.4 manual booking creation (the "+ New booking" counter/phone form).
