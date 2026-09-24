@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       add_ons: {
@@ -20,6 +45,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          max_quantity: number
           name: string
           price_mur: number
           price_type: string
@@ -31,6 +57,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          max_quantity?: number
           name: string
           price_mur: number
           price_type?: string
@@ -42,6 +69,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          max_quantity?: number
           name?: string
           price_mur?: number
           price_type?: string
@@ -131,6 +159,7 @@ export type Database = {
           return_location_id: string
           source: string
           status: string
+          terms_accepted_at: string | null
           total_mur: number
           updated_at: string
           vehicle_id: string | null
@@ -152,6 +181,7 @@ export type Database = {
           return_location_id: string
           source?: string
           status?: string
+          terms_accepted_at?: string | null
           total_mur: number
           updated_at?: string
           vehicle_id?: string | null
@@ -173,6 +203,7 @@ export type Database = {
           return_location_id?: string
           source?: string
           status?: string
+          terms_accepted_at?: string | null
           total_mur?: number
           updated_at?: string
           vehicle_id?: string | null
@@ -197,6 +228,13 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "public_partner_hotels"
             referencedColumns: ["id"]
           },
           {
@@ -232,6 +270,7 @@ export type Database = {
           hotel_id: string | null
           id: string
           last_name: string
+          marketing_consent: boolean
           notes: string | null
           phone: string
           updated_at: string
@@ -245,6 +284,7 @@ export type Database = {
           hotel_id?: string | null
           id?: string
           last_name: string
+          marketing_consent?: boolean
           notes?: string | null
           phone: string
           updated_at?: string
@@ -258,6 +298,7 @@ export type Database = {
           hotel_id?: string | null
           id?: string
           last_name?: string
+          marketing_consent?: boolean
           notes?: string | null
           phone?: string
           updated_at?: string
@@ -268,6 +309,13 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customers_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "public_partner_hotels"
             referencedColumns: ["id"]
           },
         ]
@@ -658,8 +706,58 @@ export type Database = {
           },
         ]
       }
+      public_partner_hotels: {
+        Row: {
+          id: string | null
+          location_id: string | null
+          name: string | null
+          slug: string | null
+        }
+        Insert: {
+          id?: string | null
+          location_id?: string | null
+          name?: string | null
+          slug?: string | null
+        }
+        Update: {
+          id?: string | null
+          location_id?: string | null
+          name?: string | null
+          slug?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotels_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      create_booking_request: {
+        Args: {
+          p_add_ons: Json
+          p_addons_total_mur: number
+          p_car_total_mur: number
+          p_category_id: string
+          p_customer: Json
+          p_days: number
+          p_hotel_id: string
+          p_notes: string
+          p_pickup_at: string
+          p_pickup_location_id: string
+          p_return_at: string
+          p_return_location_id: string
+          p_total_mur: number
+        }
+        Returns: {
+          booking_id: string
+          reference: string
+        }[]
+      }
       generate_booking_reference: { Args: never; Returns: string }
       is_role: { Args: { roles: string[] }; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
@@ -791,6 +889,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

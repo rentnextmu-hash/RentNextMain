@@ -66,3 +66,45 @@ export function daysBetween(from: Date | string, to: Date | string): number {
 
   return Math.max(1, diff);
 }
+
+// ── Date-key helpers ────────────────────────────────────────────────────
+// The booking flow works in separate "YYYY-MM-DD" + "HH:mm" fields (what
+// <input type="date"> and a time select produce), always meaning Mauritius
+// local time regardless of the visitor's own timezone.
+
+/** Mauritius is UTC+4 year-round (no daylight saving), so the offset is fixed. */
+const MAURITIUS_OFFSET = "+04:00";
+
+/** "2026-09-28" + "10:00" -> "2026-09-28T10:00:00+04:00" */
+export function mauritiusDateTime(dateKey: string, time: string): string {
+  return `${dateKey}T${time}:00${MAURITIUS_OFFSET}`;
+}
+
+/** The Mauritius calendar date of an instant, as "YYYY-MM-DD". */
+export function toDateKey(date: Date | string = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: MAURITIUS_TZ }).format(new Date(date));
+}
+
+/** The Mauritius wall-clock time of an instant, as "HH:mm". */
+export function toTimeKey(date: Date | string): string {
+  return new Date(date).toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: MAURITIUS_TZ,
+  });
+}
+
+/** "2026-09-28" + 3 -> "2026-10-01" (pure calendar arithmetic, no timezone involved). */
+export function addDaysToDateKey(dateKey: string, days: number): string {
+  const d = new Date(`${dateKey}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+/** "Mon 28 Sep 2026, 10:00" — for the booking summary, where the weekday helps. */
+export function formatDateTimeLong(date: Date | string): string {
+  const d = new Date(date);
+  const weekday = d.toLocaleDateString("en-GB", { weekday: "short", timeZone: MAURITIUS_TZ });
+  return `${weekday} ${formatDateTime(d)}`;
+}

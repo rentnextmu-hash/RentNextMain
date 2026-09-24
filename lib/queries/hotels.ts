@@ -62,3 +62,23 @@ export async function getHotelBookingSummary(supabase: Client, hotelId: string):
     revenueAllTimeMur: rows.reduce((sum, b) => sum + b.total_mur, 0),
   };
 }
+
+export type PartnerHotel = { id: string; name: string; slug: string; locationId: string | null };
+
+/**
+ * Active partner hotels for the public booking flow's "deliver to my
+ * hotel" select. Reads the public_partner_hotels view (migration 0006),
+ * not `hotels` — the table itself is staff-only because it holds contact
+ * details and commission rates.
+ */
+export async function getPartnerHotels(supabase: Client): Promise<PartnerHotel[]> {
+  const { data, error } = await supabase
+    .from("public_partner_hotels")
+    .select("id, name, slug, location_id")
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []).flatMap((h) =>
+    h.id && h.name && h.slug ? [{ id: h.id, name: h.name, slug: h.slug, locationId: h.location_id }] : [],
+  );
+}

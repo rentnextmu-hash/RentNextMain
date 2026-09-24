@@ -211,17 +211,17 @@ on conflict (slug) do update set
 -- ────────────────────────────────────────────────────────────────────────
 -- Add-ons (6)
 -- ────────────────────────────────────────────────────────────────────────
-insert into add_ons (id, slug, name, description, price_mur, price_type, is_active)
+insert into add_ons (id, slug, name, description, price_mur, price_type, max_quantity, is_active)
 values
-  ('50000000-0000-0000-0000-000000000001', 'additional-driver', 'Additional driver', 'Add a second named driver to the rental agreement.', 300, 'per_booking', true),
-  ('50000000-0000-0000-0000-000000000002', 'baby-seat', 'Baby seat', 'Rear-facing or forward-facing child seat, fitted before pickup.', 200, 'per_booking', true),
-  ('50000000-0000-0000-0000-000000000003', 'airport-delivery', 'Airport delivery', 'Car delivered to and collected from SSR International Airport.', 800, 'per_booking', true),
-  ('50000000-0000-0000-0000-000000000004', 'hotel-delivery', 'Hotel delivery', 'Car delivered to and collected from your partner hotel.', 500, 'per_booking', true),
-  ('50000000-0000-0000-0000-000000000005', 'gps', 'GPS', 'Dedicated GPS navigation unit, pre-loaded with island maps.', 150, 'per_day', true),
-  ('50000000-0000-0000-0000-000000000006', 'full-insurance', 'Full insurance upgrade', 'Reduces the standard excess to zero for the full rental period.', 400, 'per_day', true)
+  ('50000000-0000-0000-0000-000000000001', 'additional-driver', 'Additional driver', 'Add a second named driver to the rental agreement.', 300, 'per_booking', 3, true),
+  ('50000000-0000-0000-0000-000000000002', 'baby-seat', 'Baby seat', 'Rear-facing or forward-facing child seat, fitted before pickup.', 200, 'per_booking', 3, true),
+  ('50000000-0000-0000-0000-000000000003', 'airport-delivery', 'Airport delivery', 'Car delivered to and collected from SSR International Airport.', 800, 'per_booking', 1, true),
+  ('50000000-0000-0000-0000-000000000004', 'hotel-delivery', 'Hotel delivery', 'Car delivered to and collected from your partner hotel.', 500, 'per_booking', 1, true),
+  ('50000000-0000-0000-0000-000000000005', 'gps', 'GPS', 'Dedicated GPS navigation unit, pre-loaded with island maps.', 150, 'per_day', 1, true),
+  ('50000000-0000-0000-0000-000000000006', 'full-insurance', 'Full insurance upgrade', 'Reduces the standard excess to zero for the full rental period.', 400, 'per_day', 1, true)
 on conflict (slug) do update set
   name = excluded.name, description = excluded.description, price_mur = excluded.price_mur,
-  price_type = excluded.price_type, is_active = excluded.is_active;
+  price_type = excluded.price_type, max_quantity = excluded.max_quantity, is_active = excluded.is_active;
 
 -- ────────────────────────────────────────────────────────────────────────
 -- Vehicles (24) — 2-3 per category, weighted toward the cheaper tiers
@@ -452,5 +452,19 @@ select b.id, b.total_mur,
   b.created_at + interval '2 hours'
 from bookings b
 where b.status in ('confirmed', 'active', 'completed');
+
+-- ───────────────────────────────────────────────────────────────────────
+-- Booking reference counters — resync from the seeded bookings.
+-- The references above are built directly from each booking's dates, not
+-- through generate_booking_reference(), so the counter table never heard
+-- about them. Without this, the first real booking on a day that already
+-- has a seeded booking (e.g. re-seeding on demo morning) would be issued
+-- CR-<today>-001 again and fail on the unique constraint.
+-- ───────────────────────────────────────────────────────────────────────
+delete from booking_reference_counters;
+insert into booking_reference_counters (reference_date, last_sequence)
+select to_date(split_part(reference, '-', 2), 'YYYYMMDD'), max(split_part(reference, '-', 3)::int)
+from bookings
+group by 1;
 
 commit;

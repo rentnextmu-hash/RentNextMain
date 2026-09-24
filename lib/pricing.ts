@@ -65,3 +65,21 @@ export function calculateBookingTotal(params: {
 
   return { days, dailyRateMur, carTotalMur, addonsTotalMur, totalMur: carTotalMur + addonsTotalMur };
 }
+
+export const AIRPORT_DELIVERY_SLUG = "airport-delivery";
+export const HOTEL_DELIVERY_SLUG = "hotel-delivery";
+
+/**
+ * Add-ons that are charged automatically by the trip itself rather than
+ * chosen by the customer: airport delivery when picking up at the airport,
+ * hotel delivery when they asked for the car at their hotel. The extras
+ * step shows these ticked and locked; the create-booking Edge Function
+ * adds them server-side regardless of what the browser sent, so they
+ * can't be dropped from the price by editing the request.
+ */
+export function lockedAddOnSlugs(trip: { pickupLocationType: string; hotelDelivery: boolean }): string[] {
+  const slugs: string[] = [];
+  if (trip.pickupLocationType === "airport") slugs.push(AIRPORT_DELIVERY_SLUG);
+  if (trip.hotelDelivery) slugs.push(HOTEL_DELIVERY_SLUG);
+  return slugs;
+}

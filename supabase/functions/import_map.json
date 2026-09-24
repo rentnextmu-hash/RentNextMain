@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "@/lib/format": "../../lib/format.ts",
+    "@/lib/pricing": "../../lib/pricing.ts",
+    "@/lib/availability": "../../lib/availability.ts",
+    "@/lib/validation": "../../lib/validation.ts",
+    "@/types/database": "../../types/database.ts",
+    "@/types/enums": "../../types/enums.ts",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
+    "zod": "npm:zod@4.6.5"
+  }
+}

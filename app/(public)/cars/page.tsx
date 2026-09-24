@@ -22,6 +22,16 @@ type SearchParams = {
   to?: string;
 };
 
+// Straight to the trip step with the car chosen; location and dates from
+// the search (if any) are carried over rather than asked for again.
+function bookingHref(slug: string, params: SearchParams): string {
+  const qs = new URLSearchParams({ category: slug });
+  if (params.location) qs.set("location", params.location);
+  if (params.from) qs.set("from", params.from);
+  if (params.to) qs.set("to", params.to);
+  return `/booking/trip?${qs.toString()}`;
+}
+
 export default async function CarsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
   const supabase = await createClient();
@@ -109,6 +119,7 @@ export default async function CarsPage({ searchParams }: { searchParams: Promise
                 dailyRateMur: car.daily_rate_mur ?? car.rate_6_plus_mur,
                 imagePath: car.image_path,
                 availableCount: car.availableCount,
+                bookHref: bookingHref(car.slug, params),
               }}
               className={car.availableCount === 0 ? "opacity-50" : undefined}
             />

@@ -7,21 +7,16 @@ import { Select } from "@/components/ui/Select";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { addDaysToDateKey, toDateKey } from "@/lib/format";
 
-function isoDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
-
+// Dates are Mauritius calendar dates — toISOString() would give the UTC
+// date, which is still "yesterday" in Mauritius between midnight and 04:00.
 function defaultPickup(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return isoDate(d);
+  return addDaysToDateKey(toDateKey(), 1);
 }
 
 function defaultReturn(pickup: string): string {
-  const d = new Date(pickup);
-  d.setDate(d.getDate() + 5);
-  return isoDate(d);
+  return addDaysToDateKey(pickup, 5);
 }
 
 export function SearchWidget({
@@ -68,7 +63,7 @@ export function SearchWidget({
         label="Pickup date"
         type="date"
         value={pickup}
-        min={isoDate(new Date())}
+        min={toDateKey()}
         onChange={(e) => {
           setPickup(e.target.value);
           if (new Date(ret) <= new Date(e.target.value)) setRet(defaultReturn(e.target.value));

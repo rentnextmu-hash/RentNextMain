@@ -1,0 +1,8 @@
+{
+  "//": "Only used to type-check the Edge Functions locally (deno check --config supabase/functions/deno.json ...). Deployment resolves imports through import_map.json via supabase/config.toml.",
+  "importMap": "./import_map.json",
+  "compilerOptions": {
+    "lib": ["deno.ns", "deno.window", "dom"],
+    "strict": true
+  }
+}

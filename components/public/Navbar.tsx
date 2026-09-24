@@ -10,7 +10,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
+    <header className="sticky top-0 z-40 print:hidden border-b border-border bg-surface/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
           <Image src="/logo-mark.png" alt="Rent Next Car Hire" width={140} height={77} className="h-9 w-auto" priority />
@@ -29,7 +29,7 @@ export function Navbar() {
         </nav>
 
         <Link
-          href="/cars"
+          href="/booking/car"
           className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-accent px-4 text-sm font-medium text-text transition-colors hover:bg-accent-hover"
         >
           Book Now

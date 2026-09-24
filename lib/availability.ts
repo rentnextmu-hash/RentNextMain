@@ -3,6 +3,16 @@
 // 'maintenance' or 'inactive'), it's based at the requested location, and
 // it has no booking with status in (confirmed, active) overlapping the
 // requested window. The window is treated as [pickup_at, return_at).
+//
+// Two ways in:
+//   - The functions below query `vehicles` directly. That table is
+//     staff-only RLS, so they only work with a staff session or the
+//     service role — the admin dashboard and the Edge Functions.
+//   - checkAvailability() is for the public site. It calls the
+//     check-availability Edge Function, which runs getAvailableCategories()
+//     with the service role and returns per-category counts only — never a
+//     vehicle row. Called with the anon key, the direct functions would
+//     silently see zero vehicles and report everything unavailable.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 
@@ -120,4 +130,22 @@ export async function getAvailableCategories(
     categoryId,
     availableCount,
   }));
+}
+
+/**
+ * Public-safe availability: per-category counts for a pickup location and
+ * window, via the check-availability Edge Function. Works with any client,
+ * including the anon key in the browser or a server component.
+ */
+export async function checkAvailability(
+  supabase: Client,
+  request: { locationId: string; from: Date | string; to: Date | string },
+): Promise<CategoryAvailability[]> {
+  const { data, error } = await supabase.functions.invoke<{ categories: CategoryAvailability[] }>(
+    "check-availability",
+    { body: { locationId: request.locationId, from: toIso(request.from), to: toIso(request.to) } },
+  );
+
+  if (error) throw error;
+  return data?.categories ?? [];
 }

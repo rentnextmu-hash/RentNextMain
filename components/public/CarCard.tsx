@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Car } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { formatMUR } from "@/lib/format";
@@ -43,6 +44,8 @@ export type CarCardData = {
   dailyRateMur: number;
   imagePath: string | null;
   availableCount?: number;
+  /** Where the card's "Book" button goes — omitted, the card has no button. */
+  bookHref?: string;
 };
 
 export function CarCard({ car, className }: { car: CarCardData; className?: string }) {
@@ -84,9 +87,20 @@ export function CarCard({ car, className }: { car: CarCardData; className?: stri
           {car.transmission === "automatic" ? "Automatic" : "Manual"} &middot; {car.seats} seats
           {car.airConditioning ? " · AC" : ""}
         </p>
-        <p className="mt-3 text-sm text-text-muted">
-          <span className="text-lg font-semibold text-text">{formatMUR(car.dailyRateMur)}</span> / day
-        </p>
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <p className="text-sm text-text-muted">
+            <span className="text-lg font-semibold text-text">{formatMUR(car.dailyRateMur)}</span> / day
+          </p>
+          {car.bookHref && car.availableCount !== 0 && (
+            <Link
+              href={car.bookHref}
+              className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              aria-label={`Book the ${car.name}`}
+            >
+              Book
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

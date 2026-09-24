@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
-import { getAvailableCategories } from "@/lib/availability";
+import { checkAvailability } from "@/lib/availability";
 
 type Client = SupabaseClient<Database>;
 export type VehicleCategory = Database["public"]["Tables"]["vehicle_categories"]["Row"];
@@ -38,7 +38,9 @@ export async function getCategoriesWithAvailabilityCount(
 ): Promise<CategoryWithAvailability[]> {
   const [categories, availability] = await Promise.all([
     getActiveCategories(supabase),
-    getAvailableCategories(supabase, locationId, from, to),
+    // Via the Edge Function, not getAvailableCategories() directly — this
+    // runs for anonymous visitors, who can't read the vehicles table.
+    checkAvailability(supabase, { locationId, from, to }),
   ]);
 
   const countByCategory = new Map(availability.map((a) => [a.categoryId, a.availableCount]));
