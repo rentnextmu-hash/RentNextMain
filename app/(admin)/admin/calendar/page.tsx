@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { daysBetween } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -188,11 +189,12 @@ export default async function CalendarPage() {
                 ))}
 
                 {blocks.map(({ booking, startDay, endDay }) => (
-                  <div
+                  <Link
                     key={booking.id}
+                    href={`/admin/bookings/${booking.reference}`}
                     title={`${booking.customerName} — ${booking.reference}`}
                     className={cn(
-                      "z-[5] my-1.5 flex items-center overflow-hidden rounded-[var(--radius-sm)] px-2 text-xs font-medium shadow-sm",
+                      "z-[5] my-1.5 flex items-center overflow-hidden rounded-[var(--radius-sm)] px-2 text-xs font-medium shadow-sm transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
                       STATUS_BLOCK_CLASS[booking.status] ?? "bg-text-muted text-white",
                     )}
                     style={{
@@ -204,7 +206,7 @@ export default async function CalendarPage() {
                     <span className="truncate">
                       {booking.customerName.split(" ")[0]} &middot; {booking.reference.slice(-3)}
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </Fragment>
             );

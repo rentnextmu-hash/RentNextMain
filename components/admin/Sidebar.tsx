@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, enabled: true },
-  { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck, enabled: false },
+  { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck, enabled: true },
   { href: "/admin/fleet", label: "Fleet", icon: Car, enabled: true },
   { href: "/admin/calendar", label: "Calendar", icon: CalendarDays, enabled: true },
   { href: "/admin/locations", label: "Locations", icon: MapPin, enabled: false },
@@ -34,7 +34,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col bg-admin-sidebar text-white md:flex">
+    <aside className="hidden w-60 shrink-0 flex-col bg-admin-sidebar text-white md:flex print:hidden">
       <div className="flex h-16 items-center px-6">
         <Image src="/logo-mark.png" alt="Rent Next Car Hire" width={140} height={77} className="h-8 w-auto" />
       </div>

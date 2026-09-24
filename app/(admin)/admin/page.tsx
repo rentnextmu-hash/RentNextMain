@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Car, CheckCircle2, Wrench, Clock } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getFleetStats, getTodayActivity, getRecentBookings, getUpcomingReturns } from "@/lib/queries/dashboard";
@@ -106,7 +107,9 @@ export default async function AdminDashboardPage() {
               }[]).map((b) => (
                 <li key={b.id} className="flex items-center justify-between border-t border-admin-border pt-3 first:border-t-0 first:pt-0">
                   <div>
-                    <p className="font-mono text-sm font-semibold text-text">{b.reference}</p>
+                    <Link href={`/admin/bookings/${b.reference}`} className="font-mono text-sm font-semibold text-text hover:text-primary hover:underline">
+                      {b.reference}
+                    </Link>
                     <p className="text-sm text-text-muted">
                       {b.customer ? `${b.customer.first_name} ${b.customer.last_name}` : "—"} &middot; {b.category?.name}
                     </p>

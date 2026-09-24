@@ -25,11 +25,17 @@ function toIso(date: Date | string): string {
   return typeof date === "string" ? new Date(date).toISOString() : date.toISOString();
 }
 
+export type AvailabilityOptions = {
+  /** Ignore this booking's own hold on a vehicle — when reassigning or re-checking an existing booking. */
+  excludeBookingId?: string;
+};
+
 export async function isVehicleAvailable(
   supabase: Client,
   vehicleId: string,
   from: Date | string,
   to: Date | string,
+  options: AvailabilityOptions = {},
 ): Promise<boolean> {
   const { data: vehicle, error: vehicleError } = await supabase
     .from("vehicles")
@@ -42,14 +48,16 @@ export async function isVehicleAvailable(
     return false;
   }
 
-  const { count, error } = await supabase
+  let query = supabase
     .from("bookings")
     .select("id", { count: "exact", head: true })
     .eq("vehicle_id", vehicleId)
     .in("status", OVERLAPPING_STATUSES)
     .lt("pickup_at", toIso(to))
     .gt("return_at", toIso(from));
+  if (options.excludeBookingId) query = query.neq("id", options.excludeBookingId);
 
+  const { count, error } = await query;
   if (error) throw error;
   return (count ?? 0) === 0;
 }
@@ -59,17 +67,20 @@ async function unavailableVehicleIds(
   vehicleIds: string[],
   from: Date | string,
   to: Date | string,
+  options: AvailabilityOptions = {},
 ): Promise<Set<string>> {
   if (vehicleIds.length === 0) return new Set();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("bookings")
     .select("vehicle_id")
     .in("vehicle_id", vehicleIds)
     .in("status", OVERLAPPING_STATUSES)
     .lt("pickup_at", toIso(to))
     .gt("return_at", toIso(from));
+  if (options.excludeBookingId) query = query.neq("id", options.excludeBookingId);
 
+  const { data, error } = await query;
   if (error) throw error;
   return new Set((data ?? []).map((b) => b.vehicle_id).filter((id): id is string => id !== null));
 }
@@ -95,6 +106,61 @@ export async function getAvailableVehicleCount(
   const unavailable = await unavailableVehicleIds(supabase, vehicleIds, from, to);
 
   return vehicleIds.filter((id) => !unavailable.has(id)).length;
+}
+
+export type AvailableVehicle = {
+  id: string;
+  code: string;
+  registration: string;
+  mileageKm: number;
+  locationId: string;
+  locationName: string;
+};
+
+/**
+ * Every vehicle of a category that's genuinely free for a window, at any
+ * location — for staff assigning a car to a booking. Staff/service-role
+ * only (reads `vehicles`). Sorted with vehicles already at the preferred
+ * location (normally the booking's pickup point) first, then lowest
+ * mileage, so the first entry is the sensible default assignment.
+ */
+export async function getAvailableVehicles(
+  supabase: Client,
+  params: { categoryId: string; from: Date | string; to: Date | string; preferLocationId?: string },
+  options: AvailabilityOptions = {},
+): Promise<AvailableVehicle[]> {
+  const { data: vehicles, error } = await supabase
+    .from("vehicles")
+    .select("id, code, registration, mileage_km, location_id, location:locations(name)")
+    .eq("category_id", params.categoryId)
+    .in("status", OPERABLE_VEHICLE_STATUSES);
+
+  if (error) throw error;
+  if (!vehicles || vehicles.length === 0) return [];
+
+  const unavailable = await unavailableVehicleIds(
+    supabase,
+    vehicles.map((v) => v.id),
+    params.from,
+    params.to,
+    options,
+  );
+
+  return vehicles
+    .filter((v) => !unavailable.has(v.id))
+    .map((v) => ({
+      id: v.id,
+      code: v.code,
+      registration: v.registration,
+      mileageKm: v.mileage_km,
+      locationId: v.location_id,
+      locationName: v.location?.name ?? "",
+    }))
+    .sort(
+      (a, b) =>
+        Number(b.locationId === params.preferLocationId) - Number(a.locationId === params.preferLocationId) ||
+        a.mileageKm - b.mileageKm,
+    );
 }
 
 export type CategoryAvailability = {

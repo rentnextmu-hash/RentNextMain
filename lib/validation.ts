@@ -125,3 +125,19 @@ export type PublicBookingView = {
   hotelName: string | null;
   addOns: { name: string; quantity: number; unitPriceMur: number; totalMur: number; priceType: string }[];
 };
+
+// ── Admin booking operations ───────────────────────────────────────────
+
+export const recordPaymentSchema = z.object({
+  amountMur: z.coerce.number().int("Whole rupees only.").min(1, "Enter an amount.").max(10_000_000),
+  method: z.enum(["cash", "card", "transfer", "online"], "Choose how it was paid."),
+  reference: z.string().trim().max(100).optional(),
+});
+
+export const completeBookingSchema = z.object({
+  returnMileageKm: z.coerce.number().int("Whole kilometres only.").min(0).max(2_000_000),
+});
+
+export const internalNotesSchema = z.object({
+  notes: z.string().max(5000, "Keep notes under 5,000 characters."),
+});

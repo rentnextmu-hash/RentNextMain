@@ -144,68 +144,92 @@ export type Database = {
       bookings: {
         Row: {
           addons_total_mur: number
+          cancelled_at: string | null
           car_total_mur: number
           category_id: string
+          confirmed_at: string | null
           created_at: string
           customer_id: string
           days: number
           hotel_id: string | null
           id: string
+          internal_notes: string | null
+          internal_notes_updated_at: string | null
+          internal_notes_updated_by: string | null
           notes: string | null
+          picked_up_at: string | null
           pickup_at: string
           pickup_location_id: string
           reference: string
           return_at: string
           return_location_id: string
+          returned_at: string | null
           source: string
           status: string
           terms_accepted_at: string | null
           total_mur: number
           updated_at: string
+          vehicle_assigned_at: string | null
           vehicle_id: string | null
         }
         Insert: {
           addons_total_mur?: number
+          cancelled_at?: string | null
           car_total_mur: number
           category_id: string
+          confirmed_at?: string | null
           created_at?: string
           customer_id: string
           days: number
           hotel_id?: string | null
           id?: string
+          internal_notes?: string | null
+          internal_notes_updated_at?: string | null
+          internal_notes_updated_by?: string | null
           notes?: string | null
+          picked_up_at?: string | null
           pickup_at: string
           pickup_location_id: string
           reference: string
           return_at: string
           return_location_id: string
+          returned_at?: string | null
           source?: string
           status?: string
           terms_accepted_at?: string | null
           total_mur: number
           updated_at?: string
+          vehicle_assigned_at?: string | null
           vehicle_id?: string | null
         }
         Update: {
           addons_total_mur?: number
+          cancelled_at?: string | null
           car_total_mur?: number
           category_id?: string
+          confirmed_at?: string | null
           created_at?: string
           customer_id?: string
           days?: number
           hotel_id?: string | null
           id?: string
+          internal_notes?: string | null
+          internal_notes_updated_at?: string | null
+          internal_notes_updated_by?: string | null
           notes?: string | null
+          picked_up_at?: string | null
           pickup_at?: string
           pickup_location_id?: string
           reference?: string
           return_at?: string
           return_location_id?: string
+          returned_at?: string | null
           source?: string
           status?: string
           terms_accepted_at?: string | null
           total_mur?: number
           updated_at?: string
+          vehicle_assigned_at?: string | null
           vehicle_id?: string | null
         }
         Relationships: [
@@ -235,6 +259,13 @@ export type Database = {
             columns: ["hotel_id"]
             isOneToOne: false
             referencedRelation: "public_partner_hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_internal_notes_updated_by_fkey"
+            columns: ["internal_notes_updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -737,6 +768,10 @@ export type Database = {
       }
     }
     Functions: {
+      assign_booking_vehicle: {
+        Args: { p_booking_id: string; p_vehicle_id: string }
+        Returns: undefined
+      }
       create_booking_request: {
         Args: {
           p_add_ons: Json
@@ -761,6 +796,19 @@ export type Database = {
       generate_booking_reference: { Args: never; Returns: string }
       is_role: { Args: { roles: string[] }; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      release_vehicle_if_free: {
+        Args: { p_except_booking_id: string; p_vehicle_id: string }
+        Returns: undefined
+      }
+      transition_booking: {
+        Args: {
+          p_booking_id: string
+          p_return_mileage_km?: number
+          p_to_status: string
+          p_vehicle_id?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

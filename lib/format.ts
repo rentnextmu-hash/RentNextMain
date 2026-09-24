@@ -5,14 +5,21 @@ export function formatMUR(amount: number): string {
   return `Rs ${Math.round(amount).toLocaleString("en-US")}`;
 }
 
+// Newer ICU data (72+, i.e. current Node and Chrome) abbreviates
+// September as "Sept" in en-GB. The house style is three letters, "Sep",
+// so normalise it rather than depend on the runtime's locale data.
+const normaliseMonth = (text: string) => text.replace(/\bSept\b/, "Sep");
+
 /** "20 Sep 2026" */
 export function formatDate(date: Date | string): string {
-  return new Date(date).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: MAURITIUS_TZ,
-  });
+  return normaliseMonth(
+    new Date(date).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: MAURITIUS_TZ,
+    }),
+  );
 }
 
 /** "20 Sep 2026, 10:00" */
@@ -39,7 +46,7 @@ export function formatDateRange(from: Date | string, to: Date | string): string 
       year: "numeric",
       timeZone: MAURITIUS_TZ,
     }).formatToParts(d);
-    return Object.fromEntries(fmt.map((p) => [p.type, p.value]));
+    return Object.fromEntries(fmt.map((p) => [p.type, p.type === "month" ? normaliseMonth(p.value) : p.value]));
   };
 
   const pa = partsOf(a);

@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/format";
 
 const TITLES: Record<string, string> = {
   "/admin": "Dashboard",
+  "/admin/bookings": "Bookings",
   "/admin/fleet": "Fleet",
   "/admin/calendar": "Calendar",
 };
@@ -20,7 +21,7 @@ export function Topbar({ staffName }: { staffName: string | null }) {
   const pathname = usePathname();
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-admin-border bg-admin-surface px-6">
+    <header className="flex h-16 shrink-0 print:hidden items-center justify-between border-b border-admin-border bg-admin-surface px-6">
       <h1 className="text-lg font-semibold text-text">{titleFor(pathname ?? "/admin")}</h1>
 
       <div className="flex items-center gap-6">
