@@ -152,7 +152,7 @@ Modelled on drinkbaie.com's product carousel: one vehicle at a time, full-bleed,
 - **Live since 24 Sep 2026**: 0006 pushed, `BOOKING_LINK_SECRET` set, all four functions deployed with `supabase functions deploy <name> --use-api` (server-side bundling — uploads the shared lib/ files via the import map; Docker bundling not needed). Verified with a real browser booking against production (CR-20260924-001, marked as a test in its notes). Still needed for emails: `RESEND_API_KEY` + a verified sending domain (`EMAIL_FROM`) + `SITE_URL` as function secrets.
 - **CLI auth in Codespaces**: `supabase login` stores its token in the OS keyring, which doesn't survive a Codespace restart. Use `SUPABASE_ACCESS_TOKEN` / `SUPABASE_DB_PASSWORD` Codespaces secrets instead. Website bookings are `requested` with no vehicle and don't consume inventory until staff confirm+assign (V1 by design).
 
-**Block B8 (part) — Bookings list + booking detail (P8.1, P8.2): built and verified locally; migration 0007 NOT yet applied live — push it before deploying this code.**
+**Block B8 (part) — Bookings list + booking detail (P8.1, P8.2): complete and live (0007 pushed 24 Sep 2026, types regenerated from live).**
 
 - **Migration 0007**: status timestamps (`confirmed_at`, `vehicle_assigned_at`, `picked_up_at`, `returned_at`, `cancelled_at`) set only by the `bookings_status_guard` trigger, which also **enforces transitions** (requested→confirmed→active→completed; cancelled from any open state; completed/cancelled final; no `active` without a vehicle; no vehicle change once closed). `internal_notes` (+ `_updated_at`/`_updated_by`) kept separate from `bookings.notes`, which is the customer's own website text. `assign_booking_vehicle()` / `transition_booking()` do the booking + vehicle-status + mileage side effects in one transaction, SECURITY INVOKER so staff RLS applies. Vehicle status follows the demo script: assigning marks the car `booked`; completing/cancelling releases it unless another open booking holds it.
 - `lib/bookingStatus.ts` mirrors the transition map for the UI only (which buttons to show) plus `attentionReason()` for the list's warning rows — the DB trigger is authoritative.
@@ -163,4 +163,4 @@ Modelled on drinkbaie.com's product carousel: one vehicle at a time, full-bleed,
 - Calendar booking blocks and dashboard recent-booking references now link to the detail page. Sidebar "Bookings" enabled.
 - Verified with a local GoTrue + PostgREST + Deno gateway (host networking; see B5 note) and a signed-in Playwright run of the full staff workflow, desktop + 1024px tablet.
 
-**Next up:** push 0007 live then deploy; then P8.4 manual booking creation (the "+ New booking" counter/phone form) and P7.2 add-vehicle (the demo's live "fleet goes from 30 to 31" moment).
+**Next up:** P8.4 manual booking creation (the "+ New booking" counter/phone form) and P7.2 add-vehicle (the demo's live "fleet goes from 30 to 31" moment).
