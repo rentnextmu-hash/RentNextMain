@@ -11,6 +11,8 @@ export const metadata: Metadata = {
 export default function PublicNotFound() {
   return (
     <div className="mx-auto max-w-xl px-4 py-20">
+      {/* EmptyState's title isn't a heading; every page needs one. */}
+      <h1 className="sr-only">Page not found</h1>
       <EmptyState
         icon={<SearchX className="h-10 w-10" strokeWidth={1.25} />}
         title="We couldn't find that page"

@@ -92,3 +92,11 @@ export function lowestDailyRate(rates: CategoryRates[]): number | null {
   if (rates.length === 0) return null;
   return Math.min(...rates.map((r) => Math.min(r.rate1To2Mur, r.rate3To5Mur, r.rate6PlusMur)));
 }
+
+/**
+ * A hotel partner's commission on the revenue it referred, rounded to the
+ * whole rupee. `ratePct` is the hotel's commission_rate, e.g. 12 for 12%.
+ */
+export function calculateCommission(revenueMur: number, ratePct: number): number {
+  return Math.round((revenueMur * ratePct) / 100);
+}

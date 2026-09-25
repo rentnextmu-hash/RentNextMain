@@ -363,6 +363,7 @@ export type Database = {
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
+          contract_start_date: string | null
           contract_status: string
           created_at: string
           id: string
@@ -378,6 +379,7 @@ export type Database = {
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          contract_start_date?: string | null
           contract_status?: string
           created_at?: string
           id?: string
@@ -393,6 +395,7 @@ export type Database = {
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          contract_start_date?: string | null
           contract_status?: string
           created_at?: string
           id?: string

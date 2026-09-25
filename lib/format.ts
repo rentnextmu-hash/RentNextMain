@@ -115,3 +115,11 @@ export function formatDateTimeLong(date: Date | string): string {
   const weekday = d.toLocaleDateString("en-GB", { weekday: "short", timeZone: MAURITIUS_TZ });
   return `${weekday} ${formatDateTime(d)}`;
 }
+
+/** The current Mauritius calendar month as [start, end) instants — for "this month" figures. */
+export function mauritiusMonthRange(date: Date = new Date()): { start: string; end: string } {
+  const key = toDateKey(date);
+  const [y, m] = key.split("-").map(Number);
+  const next = m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
+  return { start: mauritiusDateTime(`${key.slice(0, 7)}-01`, "00:00"), end: mauritiusDateTime(`${next}-01`, "00:00") };
+}

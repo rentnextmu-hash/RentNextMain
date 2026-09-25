@@ -6,6 +6,7 @@ type Client = SupabaseClient<Database>;
 export type PublicSettings = {
   companyName: string;
   companyPhone: string;
+  companyWebsite: string;
   bookingEmail: string;
   defaultPickupTime: string;
   defaultReturnTime: string;
@@ -18,6 +19,7 @@ export type PublicSettings = {
 const DEFAULTS: PublicSettings = {
   companyName: "Rent Next Car Hire",
   companyPhone: "",
+  companyWebsite: "",
   bookingEmail: "",
   defaultPickupTime: "10:00",
   defaultReturnTime: "10:00",
@@ -43,6 +45,7 @@ export async function getPublicSettings(supabase: Client): Promise<PublicSetting
   return {
     companyName: str("company_name", DEFAULTS.companyName),
     companyPhone: str("company_phone", DEFAULTS.companyPhone),
+    companyWebsite: str("company_website", DEFAULTS.companyWebsite),
     bookingEmail: str("booking_email", DEFAULTS.bookingEmail),
     defaultPickupTime: str("default_pickup_time", DEFAULTS.defaultPickupTime),
     defaultReturnTime: str("default_return_time", DEFAULTS.defaultReturnTime),

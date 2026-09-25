@@ -7,6 +7,8 @@ import { formatDate } from "@/lib/format";
 const TITLES: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/bookings": "Bookings",
+  "/admin/locations": "Locations",
+  "/admin/hotels": "Hotel partners",
   "/admin/fleet": "Fleet",
   "/admin/calendar": "Calendar",
 };

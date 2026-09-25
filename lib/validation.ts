@@ -243,3 +243,79 @@ export const staffBookingSchema = z
   });
 
 export type StaffBookingRequest = z.infer<typeof staffBookingSchema>;
+
+// ── Locations admin (P9.1) ──────────────────────────────────────────────
+
+/** Kebab-case, e.g. "flic-en-flac" — the public page's URL. */
+export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .transform((v) => (v === "" ? null : v));
+
+export const locationFormSchema = z.object({
+  name: z.string().trim().min(2, "Enter the location's name.").max(80),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(SLUG_PATTERN, "Lower-case words joined by hyphens, e.g. flic-en-flac."),
+  type: z.enum(["branch", "airport", "hotel", "custom"]),
+  region: optionalText(80),
+  address: optionalText(200),
+  latitude: z.number().min(-90).max(90).nullable(),
+  longitude: z.number().min(-180).max(180).nullable(),
+  isPickupPoint: z.boolean(),
+  isActive: z.boolean(),
+  openingHours: optionalText(100),
+  seoTitle: optionalText(120),
+  // Google shows ~160 characters; the form warns past that, this only caps abuse.
+  seoDescription: optionalText(300),
+  introContent: optionalText(4000),
+  driveTimes: z
+    .array(
+      z.object({
+        place: z.string().trim().min(1, "Name the place.").max(80),
+        minutes: z.int("Whole minutes.").min(1, "At least 1 minute.").max(600),
+      }),
+    )
+    .max(10, "Ten places at most."),
+  faqs: z
+    .array(
+      z.object({
+        question: z.string().trim().min(3, "Write the question.").max(200),
+        answer: z.string().trim().min(3, "Write the answer.").max(1000),
+      }),
+    )
+    .max(10, "Ten questions at most."),
+});
+
+export type LocationFormValues = z.input<typeof locationFormSchema>;
+
+// ── Hotel partners (P9.2) ───────────────────────────────────────────────
+
+export const hotelFormSchema = z.object({
+  name: z.string().trim().min(2, "Enter the hotel's name.").max(120),
+  slug: z.string().trim().toLowerCase().regex(SLUG_PATTERN, "Lower-case words joined by hyphens, e.g. le-recif-resort."),
+  locationId: id.nullable(),
+  contactName: optionalText(120),
+  contactEmail: z
+    .string()
+    .trim()
+    .transform((v) => (v === "" ? null : v))
+    .pipe(z.email("Enter a valid email address.").nullable()),
+  contactPhone: optionalText(40),
+  contractStatus: z.enum(["active", "pending", "inactive"]),
+  contractStartDate: z
+    .string()
+    .transform((v) => (v === "" ? null : v))
+    .pipe(z.iso.date("Enter a valid date.").nullable()),
+  commissionRate: z.number("Enter a percentage.").min(0, "Can't be negative.").max(50, "That looks too high — 50% at most."),
+  pickupNotes: optionalText(1000),
+  isActive: z.boolean(),
+});
+
+export type HotelFormValues = z.input<typeof hotelFormSchema>;
