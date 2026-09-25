@@ -83,3 +83,12 @@ export function lockedAddOnSlugs(trip: { pickupLocationType: string; hotelDelive
   if (trip.hotelDelivery) slugs.push(HOTEL_DELIVERY_SLUG);
   return slugs;
 }
+
+/**
+ * The cheapest per-day rate across a set of categories — the honest "from
+ * Rs X/day" figure (the 6+ day tier of the cheapest car). null if empty.
+ */
+export function lowestDailyRate(rates: CategoryRates[]): number | null {
+  if (rates.length === 0) return null;
+  return Math.min(...rates.map((r) => Math.min(r.rate1To2Mur, r.rate3To5Mur, r.rate6PlusMur)));
+}

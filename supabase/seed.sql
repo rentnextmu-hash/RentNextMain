@@ -28,32 +28,32 @@ begin;
 insert into locations (id, slug, name, type, region, address, latitude, longitude, is_pickup_point, seo_title, seo_description, intro_content, display_order, is_active)
 values
   ('10000000-0000-0000-0000-000000000001', 'grand-baie', 'Grand Baie', 'branch', 'Rivière du Rempart', 'Royal Road, Grand Baie, Rivière du Rempart', -20.0181, 57.5807, true,
-   'Car Rental in Grand Baie | Reliable Cars from Rs 2,700/day',
+   'Car Rental in Grand Baie | Reliable Cars from {from_price}/day',
    'Pick up your rental car in Grand Baie, Mauritius'' liveliest coastal town. Wide fleet, hotel delivery, and flexible pickup across the north coast.',
    'Grand Baie is Mauritius'' liveliest coastal town, a natural base for exploring the island''s northern beaches. Our branch sits minutes from the public beach, La Croisette shopping centre and the main strip of restaurants and dive operators. Renting here puts you within a short drive of Pereybère, Trou-aux-Biches and the catamaran departure points for Ile aux Cerfs day trips. Parking is straightforward at most hotels and along Royal Road, though the town centre gets busy in the evening. Roads are well signposted and mostly two-lane; a small car is genuinely enough for the coastal routes, while an SUV suits longer trips south towards Port Louis or across to the east coast. Our team hands over the car with a full tank and a laminated map of nearby fuel stations and parking bays.',
    1, true),
   ('10000000-0000-0000-0000-000000000002', 'flic-en-flac', 'Flic-en-Flac', 'branch', 'Black River', 'Wolmar Road, Flic-en-Flac, Black River', -20.2764, 57.3644, true,
-   'Car Rental in Flic-en-Flac | Reliable Cars from Rs 2,700/day',
+   'Car Rental in Flic-en-Flac | Reliable Cars from {from_price}/day',
    'Rent a car on Mauritius'' west coast in Flic-en-Flac. Close to the lagoon, Le Morne and Black River Gorges, with hotel delivery available.',
    'Flic-en-Flac anchors the west coast, known for its long public beach and calm lagoon swimming. Picking up here suits travellers based on the west coast or heading south towards Le Morne and Black River Gorges National Park. The branch is a short walk from Wolmar''s hotel strip and the main beachfront promenade, with free public parking along the beach road most of the day. Sunset views over the lagoon make this one of the most photographed stretches of coastline on the island, and the road south hugs the coast almost the whole way to Le Morne. Fuel stations are plentiful along the coastal road, and the drive inland to Chamarel and the Seven Coloured Earths takes under thirty minutes, making a west-coast pickup a strong choice for day-trippers.',
    2, true),
   ('10000000-0000-0000-0000-000000000003', 'belle-mare', 'Belle Mare', 'branch', 'Flacq', 'Coastal Road, Belle Mare, Flacq', -20.1859, 57.7717, true,
-   'Car Rental in Belle Mare | Reliable Cars from Rs 2,700/day',
+   'Car Rental in Belle Mare | Reliable Cars from {from_price}/day',
    'Rent a car in Belle Mare on Mauritius'' east coast, close to the island''s largest resorts and the Ile aux Cerfs boat departures.',
    'Belle Mare on the east coast is where Mauritius'' largest resort hotels sit, backed by some of the island''s calmest, most sheltered lagoon water. A car picked up here opens up the east coast at your own pace — the public beach, nearby golf courses, and the short drive to Trou d''Eau Douce for the Ile aux Cerfs boat departures. The coastal road is quiet compared with the north, with easy roadside and hotel parking throughout. Belle Mare works well as a base for a slower-paced stay, with day trips inland to Grand Bassin or across to the capital comfortably reachable in under an hour. Our office coordinates directly with the resorts along this stretch for hotel-to-car handovers, so pickup rarely means leaving your hotel grounds.',
    3, true),
   ('10000000-0000-0000-0000-000000000004', 'trou-aux-biches', 'Trou-aux-Biches', 'branch', 'Pamplemousses', 'Royal Road, Trou-aux-Biches, Pamplemousses', -20.0339, 57.5461, true,
-   'Car Rental in Trou-aux-Biches | Reliable Cars from Rs 2,700/day',
+   'Car Rental in Trou-aux-Biches | Reliable Cars from {from_price}/day',
    'Rent a car in Trou-aux-Biches, a quiet north-west lagoon town close to Grand Baie and Cap Malheureux.',
    'Trou-aux-Biches sits on the calm north-west lagoon, a quieter alternative to Grand Baie with the same easy road access to the island''s northern attractions. The branch is close to the public beach and the row of guesthouses and small hotels along the coast road, with straightforward free parking nearby. From here it''s a short hop to Grand Baie''s restaurants and nightlife, or north to Cap Malheureux and the picturesque red-roofed church at the island''s tip. The roads north are flat, well maintained and easy for first-time visitors to navigate. Snorkelling boat trips depart directly from the public beach a few minutes'' walk from our counter, making an early pickup and a morning on the water an easy combination.',
    4, true),
   ('10000000-0000-0000-0000-000000000005', 'le-morne', 'Le Morne', 'branch', 'Savanne', 'Coastal Road, La Gaulette, Le Morne, Savanne', -20.4547, 57.3106, true,
-   'Car Rental in Le Morne | Reliable Cars from Rs 2,700/day',
+   'Car Rental in Le Morne | Reliable Cars from {from_price}/day',
    'Rent a car at Le Morne on Mauritius'' south-west coast, beneath the UNESCO-listed mountain and close to Black River Gorges.',
    'Le Morne sits beneath the UNESCO-listed mountain of the same name, at the quieter south-western tip of the island, prized by kitesurfers for its reliable wind and by everyone else for the view. A car from here makes the most of the south coast — Black River Gorges National Park, the wild coastline towards Baie du Cap, and the calmer roads compared with the busier north. Our counter is close to the resort cluster at the foot of the mountain, with hotel and public parking both available nearby. The drive to Chamarel and the Seven Coloured Earths takes about twenty minutes, and the road north to Flic-en-Flac hugs the coast for one of the most scenic short drives on the island.',
    5, true),
   ('10000000-0000-0000-0000-000000000006', 'ssr-airport', 'SSR International Airport', 'airport', 'Grand Port', 'SSR International Airport, Plaine Magnien, Grand Port', -20.4302, 57.6836, true,
-   'Car Rental at SSR International Airport | Reliable Cars from Rs 2,700/day',
+   'Car Rental at SSR International Airport | Reliable Cars from {from_price}/day',
    'Pick up your rental car on arrival at SSR International Airport, Mauritius. No transfer needed — start driving the moment you land.',
    'Picking up at SSR International Airport in Plaine Magnien means your rental starts the moment you land, with no transfer needed before your holiday begins. Our counter is a short walk from the arrivals hall, and we track incoming flights so a delay never means a wasted booking. From the airport it''s a quick drive to the south-east coast, Blue Bay''s marine park, or north towards the resort belt at Belle Mare and Grand Baie. Returning here at the end of your stay is just as simple — drop the car and walk straight to check-in. Airport pickups carry a small delivery charge, covering the extra coordination with the terminal, and are the fastest way to be on the road within minutes of touching down in Mauritius.',
    6, true)
@@ -466,5 +466,50 @@ insert into booking_reference_counters (reference_date, last_sequence)
 select to_date(split_part(reference, '-', 2), 'YYYYMMDD'), max(split_part(reference, '-', 3)::int)
 from bookings
 group by 1;
+
+
+-- ───────────────────────────────────────────────────────────────────────
+-- Location page content + rental FAQs (migration 0009). Same text as the
+-- 0009 backfill — keep the two in sync. DRAFT copy for the client to
+-- confirm: drive times are approximate light-traffic estimates.
+-- ───────────────────────────────────────────────────────────────────────
+update locations set opening_hours = 'Daily, 08:00 – 18:00';
+update locations set
+  drive_times = '[{"place":"Cap Malheureux","minutes":10},{"place":"Pamplemousses Botanical Garden","minutes":20},{"place":"Port Louis","minutes":35},{"place":"SSR International Airport","minutes":75}]',
+  faqs = '[{"question":"Is parking easy in Grand Baie?","answer":"Most hotels have free parking, and there are bays along Royal Road. The town centre gets busy in the evening, so park a short walk away and stroll in."},{"question":"Can you bring the car to my hotel in Grand Baie?","answer":"Yes. Choose hotel delivery when you book and we hand the car over at your hotel, including at our partner hotels on the north coast."}]'
+where slug = 'grand-baie';
+
+update locations set
+  drive_times = '[{"place":"Port Louis","minutes":35},{"place":"Black River Gorges viewpoint","minutes":35},{"place":"Chamarel","minutes":40},{"place":"Le Morne","minutes":40},{"place":"SSR International Airport","minutes":60}]',
+  faqs = '[{"question":"Is Flic-en-Flac a good base for the south-west?","answer":"Yes. The coast road runs south to Tamarin, Chamarel and Le Morne, and inland roads climb to Black River Gorges, all within about 40 minutes."},{"question":"Can I return the car at the airport instead?","answer":"Yes. Choose a different return location when you book and drop the car at SSR International Airport before your flight."}]'
+where slug = 'flic-en-flac';
+
+update locations set
+  drive_times = '[{"place":"Trou d''Eau Douce (Ile aux Cerfs boats)","minutes":15},{"place":"SSR International Airport","minutes":50},{"place":"Port Louis","minutes":60},{"place":"Grand Baie","minutes":60}]',
+  faqs = '[{"question":"How do I get to Ile aux Cerfs from Belle Mare?","answer":"Drive about 15 minutes south to Trou d''Eau Douce, where the boats leave from the jetty. There is parking near the departure point."},{"question":"Do you deliver to the Belle Mare resorts?","answer":"Yes. Choose hotel delivery when you book and we bring the car to your hotel on the east coast."}]'
+where slug = 'belle-mare';
+
+update locations set
+  drive_times = '[{"place":"Grand Baie","minutes":10},{"place":"Pamplemousses Botanical Garden","minutes":20},{"place":"Port Louis","minutes":30},{"place":"SSR International Airport","minutes":75}]',
+  faqs = '[{"question":"Is Trou-aux-Biches quieter than Grand Baie?","answer":"Yes. It sits on the same calm north-west lagoon with the same easy road access, just without Grand Baie''s evening traffic."},{"question":"Can I pick up here and return in Grand Baie?","answer":"Yes. Choose a different return location when you book; the two branches are about ten minutes apart."}]'
+where slug = 'trou-aux-biches';
+
+update locations set
+  drive_times = '[{"place":"Chamarel and the Seven Coloured Earths","minutes":25},{"place":"Black River Gorges viewpoint","minutes":40},{"place":"Flic-en-Flac","minutes":40},{"place":"SSR International Airport","minutes":75}]',
+  faqs = '[{"question":"Which car suits the roads around Le Morne?","answer":"Any of our cars handles the coast road. For the climb to Chamarel and Black River Gorges, a car with a bit more power, like the Toyota Raize, is more comfortable."},{"question":"Where do I pick the car up at Le Morne?","answer":"At our counter near the resorts at the foot of the mountain, or delivered to your hotel if you choose hotel delivery."}]'
+where slug = 'le-morne';
+
+update locations set
+  drive_times = '[{"place":"Mahébourg","minutes":15},{"place":"Blue Bay","minutes":15},{"place":"Port Louis","minutes":50},{"place":"Belle Mare","minutes":50},{"place":"Grand Baie","minutes":75}]',
+  faqs = '[{"question":"What happens if my flight is delayed?","answer":"Add your flight number when you book. We track incoming flights, so a delay doesn''t lose you the car."},{"question":"Where do I collect the car at the airport?","answer":"At our counter, a short walk from the arrivals hall. Airport pickups carry a small delivery charge, shown in your booking total."}]'
+where slug = 'ssr-airport';
+
+insert into settings (key, value) values ('rental_faqs', '[
+  {"question":"What do I need to rent a car?","answer":"A valid driving licence, your passport and a credit card in the main driver''s name. If your licence isn''t in English or French, bring an International Driving Permit too."},
+  {"question":"Is there a minimum age?","answer":"Yes. The minimum age depends on the car. Tell us the driver''s age when you book and we''ll confirm before your booking is final."},
+  {"question":"What is the fuel policy?","answer":"Full to full. The car comes with a full tank; return it full, or we refill it at the pump price."},
+  {"question":"Do you take a deposit?","answer":"A refundable deposit is held on your credit card at pickup and released when the car comes back in the same condition. The amount depends on the car."}
+]')
+on conflict (key) do update set value = excluded.value;
 
 commit;

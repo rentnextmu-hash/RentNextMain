@@ -10,6 +10,7 @@ export type PublicSettings = {
   defaultPickupTime: string;
   defaultReturnTime: string;
   minimumRentalDays: number;
+  rentalFaqs: { question: string; answer: string }[];
 };
 
 // Fallbacks only matter if a settings row is ever deleted — the seed
@@ -21,6 +22,7 @@ const DEFAULTS: PublicSettings = {
   defaultPickupTime: "10:00",
   defaultReturnTime: "10:00",
   minimumRentalDays: 1,
+  rentalFaqs: [],
 };
 
 /** The settings table is display config, readable by anon (see 0002_rls.sql). */
@@ -45,5 +47,16 @@ export async function getPublicSettings(supabase: Client): Promise<PublicSetting
     defaultPickupTime: str("default_pickup_time", DEFAULTS.defaultPickupTime),
     defaultReturnTime: str("default_return_time", DEFAULTS.defaultReturnTime),
     minimumRentalDays: num("minimum_rental_days", DEFAULTS.minimumRentalDays),
+    rentalFaqs: faqList(byKey.get("rental_faqs")),
   };
+}
+
+/** A `[{ question, answer }]` JSON value (settings.rental_faqs, locations.faqs), dropping malformed entries. */
+export function faqList(value: unknown): { question: string; answer: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((f) =>
+    f && typeof f === "object" && typeof f.question === "string" && typeof f.answer === "string"
+      ? [{ question: f.question, answer: f.answer }]
+      : [],
+  );
 }

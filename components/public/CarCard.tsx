@@ -46,6 +46,10 @@ export type CarCardData = {
   availableCount?: number;
   /** Where the card's "Book" button goes — omitted, the card has no button. */
   bookHref?: string;
+  /** The car's detail page; the photo and name link to it when given. */
+  href?: string;
+  /** Extra price line under the daily rate, e.g. "Rs 16,000 total for 5 days". */
+  priceNote?: string;
 };
 
 export function CarCard({ car, className }: { car: CarCardData; className?: string }) {
@@ -56,7 +60,12 @@ export function CarCard({ car, className }: { car: CarCardData; className?: stri
         className,
       )}
     >
-      <div className="relative flex h-44 items-center justify-center bg-surface-alt">
+      <MaybeLink
+        href={car.href}
+        className="relative flex h-44 items-center justify-center bg-surface-alt"
+        tabIndex={-1}
+        ariaHidden
+      >
         {car.imagePath ? (
           <Image
             src={car.imagePath}
@@ -79,18 +88,29 @@ export function CarCard({ car, className }: { car: CarCardData; className?: stri
             {car.availableCount > 0 ? `${car.availableCount} available` : "Not available"}
           </Badge>
         )}
-      </div>
+      </MaybeLink>
 
       <div className="p-4">
-        <p className="font-[family-name:var(--font-heading)] text-lg font-semibold text-text">{car.name}</p>
+        <p className="font-[family-name:var(--font-heading)] text-lg font-semibold text-text">
+          {car.href ? (
+            <Link href={car.href} className="hover:text-primary hover:underline">
+              {car.name}
+            </Link>
+          ) : (
+            car.name
+          )}
+        </p>
         <p className="mt-1 text-sm text-text-muted">
           {car.transmission === "automatic" ? "Automatic" : "Manual"} &middot; {car.seats} seats
           {car.airConditioning ? " · AC" : ""}
         </p>
         <div className="mt-3 flex items-center justify-between gap-3">
-          <p className="text-sm text-text-muted">
-            <span className="text-lg font-semibold text-text">{formatMUR(car.dailyRateMur)}</span> / day
-          </p>
+          <div>
+            <p className="text-sm text-text-muted">
+              <span className="text-lg font-semibold text-text">{formatMUR(car.dailyRateMur)}</span> / day
+            </p>
+            {car.priceNote && <p className="text-xs text-text-muted">{car.priceNote}</p>}
+          </div>
           {car.bookHref && car.availableCount !== 0 && (
             <Link
               href={car.bookHref}
@@ -103,5 +123,28 @@ export function CarCard({ car, className }: { car: CarCardData; className?: stri
         </div>
       </div>
     </div>
+  );
+}
+
+// The photo links to the detail page too, but as a duplicate of the name
+// link it's hidden from keyboard and screen-reader users.
+function MaybeLink({
+  href,
+  className,
+  children,
+  tabIndex,
+  ariaHidden,
+}: {
+  href?: string;
+  className: string;
+  children: React.ReactNode;
+  tabIndex?: number;
+  ariaHidden?: boolean;
+}) {
+  if (!href) return <div className={className}>{children}</div>;
+  return (
+    <Link href={href} className={className} tabIndex={tabIndex} aria-hidden={ariaHidden}>
+      {children}
+    </Link>
   );
 }

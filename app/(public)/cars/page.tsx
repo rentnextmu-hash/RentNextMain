@@ -120,6 +120,7 @@ export default async function CarsPage({ searchParams }: { searchParams: Promise
                 imagePath: car.image_path,
                 availableCount: car.availableCount,
                 bookHref: bookingHref(car.slug, params),
+                href: `/cars/${car.slug}`,
               }}
               className={car.availableCount === 0 ? "opacity-50" : undefined}
             />

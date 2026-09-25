@@ -418,6 +418,8 @@ export type Database = {
           address: string | null
           created_at: string
           display_order: number
+          drive_times: Json
+          faqs: Json
           id: string
           image_path: string | null
           intro_content: string | null
@@ -426,6 +428,7 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           name: string
+          opening_hours: string | null
           region: string | null
           seo_description: string | null
           seo_title: string | null
@@ -437,6 +440,8 @@ export type Database = {
           address?: string | null
           created_at?: string
           display_order?: number
+          drive_times?: Json
+          faqs?: Json
           id?: string
           image_path?: string | null
           intro_content?: string | null
@@ -445,6 +450,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           name: string
+          opening_hours?: string | null
           region?: string | null
           seo_description?: string | null
           seo_title?: string | null
@@ -456,6 +462,8 @@ export type Database = {
           address?: string | null
           created_at?: string
           display_order?: number
+          drive_times?: Json
+          faqs?: Json
           id?: string
           image_path?: string | null
           intro_content?: string | null
@@ -464,6 +472,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           name?: string
+          opening_hours?: string | null
           region?: string | null
           seo_description?: string | null
           seo_title?: string | null
@@ -739,6 +748,21 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "vehicle_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      location_fleet_counts: {
+        Row: {
+          location_id: string | null
+          vehicle_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
             referencedColumns: ["id"]
           },
         ]

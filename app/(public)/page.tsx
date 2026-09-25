@@ -105,6 +105,7 @@ export default async function HomePage() {
                 airConditioning: car.air_conditioning,
                 dailyRateMur: car.daily_rate_mur ?? car.rate_6_plus_mur,
                 imagePath: car.image_path,
+                href: `/cars/${car.slug}`,
               }}
             />
           ))}
@@ -121,7 +122,10 @@ export default async function HomePage() {
 
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {locations.map((location) => (
-              <LocationCard key={location.id} location={{ name: location.name, region: location.region }} />
+              <LocationCard
+                key={location.id}
+                location={{ name: location.name, region: location.region, href: `/locations/${location.slug}` }}
+              />
             ))}
           </div>
         </div>

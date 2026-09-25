@@ -22,14 +22,17 @@ function defaultReturn(pickup: string): string {
 export function SearchWidget({
   locations,
   className,
+  initial,
 }: {
   locations: { slug: string; name: string }[];
   className?: string;
+  /** Pre-fill, e.g. the current search on /search or the location on a location page. */
+  initial?: { location?: string; from?: string; to?: string };
 }) {
   const router = useRouter();
-  const [location, setLocation] = useState(locations[0]?.slug ?? "");
-  const [pickup, setPickup] = useState(defaultPickup());
-  const [ret, setRet] = useState(defaultReturn(defaultPickup()));
+  const [location, setLocation] = useState(initial?.location ?? locations[0]?.slug ?? "");
+  const [pickup, setPickup] = useState(initial?.from ?? defaultPickup());
+  const [ret, setRet] = useState(initial?.to ?? defaultReturn(initial?.from ?? defaultPickup()));
   const [error, setError] = useState<string | null>(null);
 
   function handleSubmit(e: React.FormEvent) {
@@ -40,7 +43,7 @@ export function SearchWidget({
     }
     setError(null);
     const params = new URLSearchParams({ location, from: pickup, to: ret });
-    router.push(`/cars?${params.toString()}`);
+    router.push(`/search?${params.toString()}`);
   }
 
   return (

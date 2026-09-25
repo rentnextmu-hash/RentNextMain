@@ -101,7 +101,7 @@ const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
  * Entry from elsewhere on the site — /booking/trip?category=toyota-vitz&
- * location=grand-baie&from=2026-09-28&to=2026-10-03 — overrides whatever
+ * location=grand-baie&from=2026-09-28&to=2026-10-03[&return=ssr-airport] — overrides whatever
  * was in progress for those fields. Slugs in the URL, ids in state.
  */
 function applyUrlParams(state: BookingState, params: URLSearchParams, data: BookingFlowData): BookingState {
@@ -123,6 +123,12 @@ function applyUrlParams(state: BookingState, params: URLSearchParams, data: Book
       next.hotelId = null;
       next.hotelDelivery = false;
     }
+  }
+  // Optional different return location (?return=<slug>), from the car page's booking card.
+  const returnLocation = data.locations.find((l) => l.slug === params.get("return"));
+  if (returnLocation && returnLocation.id !== next.pickupLocationId) {
+    next.differentReturn = true;
+    next.returnLocationId = returnLocation.id;
   }
   if (from && DATE_KEY.test(from)) next.pickupDate = from;
   if (to && DATE_KEY.test(to)) next.returnDate = to;

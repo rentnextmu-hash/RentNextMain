@@ -66,3 +66,20 @@ export async function getLocationWithFleetSummary(
 
   return { ...location, ...summary };
 }
+
+/**
+ * Public per-location car counts, from the location_fleet_counts view
+ * (migration 0009) — `vehicles` itself is staff-only, so an anon client
+ * querying it directly would silently count zero.
+ */
+export async function getLocationFleetCounts(supabase: Client): Promise<Map<string, number>> {
+  const { data, error } = await supabase.from("location_fleet_counts").select("location_id, vehicle_count");
+  if (error) throw error;
+  return new Map((data ?? []).flatMap((r) => (r.location_id ? [[r.location_id, r.vehicle_count ?? 0] as const] : [])));
+}
+
+/** A location's SEO title with its `{from_price}` placeholder filled from live rates (migration 0009). */
+export function locationSeoTitle(location: Pick<Location, "name" | "seo_title">, fromPrice: string | null): string {
+  const title = location.seo_title ?? `Car Rental in ${location.name} | Rent Next Car Hire`;
+  return fromPrice ? title.replace("{from_price}", fromPrice) : title.replace(/ from \{from_price\}\/day/, "");
+}
