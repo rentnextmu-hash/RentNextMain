@@ -37,8 +37,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export default async function BookingDetailPage({ params }: { params: Promise<{ reference: string }> }) {
-  const { reference } = await params;
+export default async function BookingDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ reference: string }>;
+  searchParams: Promise<{ created?: string }>;
+}) {
+  const [{ reference }, { created }] = await Promise.all([params, searchParams]);
   const supabase = await createClient();
   const booking = await getBookingDetail(supabase, decodeURIComponent(reference));
   if (!booking) notFound();
@@ -100,6 +106,12 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All bookings
       </Link>
+
+      {created === "1" && (
+        <p role="status" className="rounded-[var(--radius-md)] bg-success/10 px-4 py-3 text-sm font-medium text-success print:hidden">
+          Booking {booking.reference} created.
+        </p>
+      )}
 
       {/* Print-only heading for the one-page rental agreement summary. */}
       <div className="hidden print:block">
@@ -236,10 +248,25 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
                     <td className="py-1.5 text-right text-text">{formatMUR(a.total_mur)}</td>
                   </tr>
                 ))}
+                {booking.original_total_mur !== null && (
+                  <tr className="border-t border-admin-border">
+                    <td className="pt-3 text-text-muted">Calculated total</td>
+                    <td className="pt-3 text-right text-text-muted line-through">{formatMUR(booking.original_total_mur)}</td>
+                  </tr>
+                )}
                 <tr className="border-t border-admin-border">
-                  <td className="pt-3 font-semibold text-text">Total</td>
+                  <td className="pt-3 font-semibold text-text">
+                    {booking.original_total_mur !== null ? "Agreed total" : "Total"}
+                  </td>
                   <td className="pt-3 text-right text-lg font-semibold text-text">{formatMUR(booking.total_mur)}</td>
                 </tr>
+                {booking.price_override_reason && (
+                  <tr>
+                    <td colSpan={2} className="pt-1 text-xs text-warning">
+                      Price overridden: {booking.price_override_reason}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </Card>

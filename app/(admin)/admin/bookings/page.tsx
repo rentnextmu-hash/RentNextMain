@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarX, Download } from "lucide-react";
+import { CalendarX, Download, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBookingsPage } from "@/lib/queries/bookings";
 import { getActiveLocations } from "@/lib/queries/locations";
@@ -54,6 +54,7 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
             {total} booking{total === 1 ? "" : "s"} match these filters
           </p>
         </div>
+        <div className="flex items-center gap-2">
         <a
           href={exportHref}
           className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border border-admin-border bg-admin-surface px-3 text-sm font-medium text-text hover:bg-surface-alt"
@@ -61,6 +62,14 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
           <Download className="h-4 w-4" aria-hidden="true" />
           Export CSV
         </a>
+        <Link
+          href="/admin/bookings/new"
+          className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] bg-primary px-3 text-sm font-medium text-white hover:bg-primary-hover"
+        >
+          <Plus className="h-4 w-4" aria-hidden="true" />
+          New booking
+        </Link>
+        </div>
       </div>
 
       <nav aria-label="Filter by status" className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">

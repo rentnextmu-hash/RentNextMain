@@ -192,3 +192,54 @@ export type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
 export const vehicleStatusSchema = z.object({
   status: z.enum(["available", "booked", "maintenance", "inactive"], "Choose a status."),
 });
+
+// ── Staff-created bookings (/admin/bookings/new) ────────────────────────
+
+export const staffCustomerSchema = customerDetailsSchema.pick({
+  firstName: true,
+  lastName: true,
+  email: true,
+  phone: true,
+  country: true,
+});
+
+export const staffBookingSchema = z
+  .object({
+    customerId: id.nullable(),
+    newCustomer: staffCustomerSchema.nullable(),
+    categoryId: id,
+    vehicleId: id.nullable(),
+    pickupLocationId: id,
+    returnLocationId: id,
+    pickupAt: dateTime,
+    returnAt: dateTime,
+    addOns: z.array(bookingAddOnSchema).max(20),
+    source: z.enum(["phone", "hotel", "walk_in"], "Choose where the booking came from."),
+    hotelId: id.nullable(),
+    status: z.enum(["requested", "confirmed"]),
+    overrideTotalMur: z.int("Whole rupees only.").min(0).max(10_000_000).nullable(),
+    overrideReason: z.string().trim().max(300),
+    notes: z.string().trim().max(5000),
+  })
+  .refine((v) => (v.customerId === null) !== (v.newCustomer === null), {
+    message: "Choose an existing customer or enter a new one.",
+    path: ["customerId"],
+  })
+  .refine((v) => new Date(v.returnAt) > new Date(v.pickupAt), {
+    message: "Return must be after pickup.",
+    path: ["returnAt"],
+  })
+  .refine((v) => v.source !== "hotel" || v.hotelId !== null, {
+    message: "Choose the hotel this booking came from.",
+    path: ["hotelId"],
+  })
+  .refine((v) => v.overrideTotalMur === null || v.overrideReason.length >= 3, {
+    message: "Give a reason for the price override.",
+    path: ["overrideReason"],
+  })
+  .refine((v) => new Set(v.addOns.map((a) => a.addOnId)).size === v.addOns.length, {
+    message: "Each extra can only be listed once.",
+    path: ["addOns"],
+  });
+
+export type StaffBookingRequest = z.infer<typeof staffBookingSchema>;

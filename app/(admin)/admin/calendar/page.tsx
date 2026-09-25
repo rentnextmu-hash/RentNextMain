@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { daysBetween } from "@/lib/format";
+import { addDaysToDateKey, daysBetween, toDateKey } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const VISIBLE_DAYS = 14;
@@ -114,6 +114,7 @@ export default async function CalendarPage() {
       dayNum: d.getUTCDate(),
       weekday: d.toLocaleDateString("en-GB", { weekday: "short", timeZone: "UTC" }),
       isToday: i === 0,
+      dateKey: addDaysToDateKey(toDateKey(), i),
     };
   });
 
@@ -175,18 +176,28 @@ export default async function CalendarPage() {
                   <span className="text-xs text-text-muted">{row.categoryName}</span>
                 </div>
 
-                {dayHeaders.map((d, dayIndex) => (
-                  <div
-                    key={`${row.id}-cell-${dayIndex}`}
-                    className={cn(
-                      "relative border-b border-admin-border",
-                      d.isToday && "bg-accent/5",
-                      row.status === "maintenance" &&
-                        "bg-[repeating-linear-gradient(45deg,rgba(201,122,14,0.12),rgba(201,122,14,0.12)_6px,transparent_6px,transparent_12px)]",
-                    )}
-                    style={{ gridRow, gridColumn: 2 + dayIndex }}
-                  />
-                ))}
+                {dayHeaders.map((d, dayIndex) => {
+                  const cellClass = cn(
+                    "relative border-b border-admin-border",
+                    d.isToday && "bg-accent/5",
+                    row.status === "maintenance" &&
+                      "bg-[repeating-linear-gradient(45deg,rgba(201,122,14,0.12),rgba(201,122,14,0.12)_6px,transparent_6px,transparent_12px)]",
+                  );
+                  const style = { gridRow, gridColumn: 2 + dayIndex };
+                  // An empty day on a bookable car starts a new booking for
+                  // that car and date. Booking blocks sit on top (z-[5]).
+                  return row.status === "maintenance" || row.status === "inactive" ? (
+                    <div key={`${row.id}-cell-${dayIndex}`} className={cellClass} style={style} />
+                  ) : (
+                    <Link
+                      key={`${row.id}-cell-${dayIndex}`}
+                      href={`/admin/bookings/new?vehicle=${row.id}&from=${d.dateKey}`}
+                      aria-label={`New booking for ${row.code} from ${d.weekday} ${d.dayNum}`}
+                      className={cn(cellClass, "hover:bg-primary/5 focus-visible:bg-primary/10 focus-visible:outline-none")}
+                      style={style}
+                    />
+                  );
+                })}
 
                 {blocks.map(({ booking, startDay, endDay }) => (
                   <Link

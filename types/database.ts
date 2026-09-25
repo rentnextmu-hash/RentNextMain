@@ -157,9 +157,11 @@ export type Database = {
           internal_notes_updated_at: string | null
           internal_notes_updated_by: string | null
           notes: string | null
+          original_total_mur: number | null
           picked_up_at: string | null
           pickup_at: string
           pickup_location_id: string
+          price_override_reason: string | null
           reference: string
           return_at: string
           return_location_id: string
@@ -187,9 +189,11 @@ export type Database = {
           internal_notes_updated_at?: string | null
           internal_notes_updated_by?: string | null
           notes?: string | null
+          original_total_mur?: number | null
           picked_up_at?: string | null
           pickup_at: string
           pickup_location_id: string
+          price_override_reason?: string | null
           reference: string
           return_at: string
           return_location_id: string
@@ -217,9 +221,11 @@ export type Database = {
           internal_notes_updated_at?: string | null
           internal_notes_updated_by?: string | null
           notes?: string | null
+          original_total_mur?: number | null
           picked_up_at?: string | null
           pickup_at?: string
           pickup_location_id?: string
+          price_override_reason?: string | null
           reference?: string
           return_at?: string
           return_location_id?: string
@@ -787,6 +793,34 @@ export type Database = {
           p_return_at: string
           p_return_location_id: string
           p_total_mur: number
+        }
+        Returns: {
+          booking_id: string
+          reference: string
+        }[]
+      }
+      create_staff_booking: {
+        Args: {
+          p_add_ons: Json
+          p_addons_total_mur: number
+          p_car_total_mur: number
+          p_category_id: string
+          p_customer_id: string
+          p_days: number
+          p_hotel_id: string
+          p_internal_notes: string
+          p_new_customer: Json
+          p_original_total_mur: number
+          p_pickup_at: string
+          p_pickup_location_id: string
+          p_price_override_reason: string
+          p_return_at: string
+          p_return_location_id: string
+          p_source: string
+          p_staff_id: string
+          p_status: string
+          p_total_mur: number
+          p_vehicle_id: string
         }
         Returns: {
           booking_id: string
