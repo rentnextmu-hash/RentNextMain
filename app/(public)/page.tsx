@@ -124,7 +124,12 @@ export default async function HomePage() {
             {locations.map((location) => (
               <LocationCard
                 key={location.id}
-                location={{ name: location.name, region: location.region, href: `/locations/${location.slug}` }}
+                location={{
+                  name: location.name,
+                  region: location.region,
+                  imagePath: location.image_path,
+                  href: `/locations/${location.slug}`,
+                }}
               />
             ))}
           </div>

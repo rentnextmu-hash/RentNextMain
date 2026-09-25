@@ -81,6 +81,7 @@ export default async function AdminLocationPage({ params }: { params: Promise<{ 
               seoTitle: l.seo_title ?? "",
               seoDescription: l.seo_description ?? "",
               introContent: l.intro_content ?? "",
+              imagePath: l.image_path ?? "",
               driveTimes,
               faqs,
             }}

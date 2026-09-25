@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -6,6 +7,7 @@ export type LocationCardData = {
   name: string;
   region: string | null;
   vehicleCount?: number;
+  imagePath?: string | null;
   /** The location page; the whole card links there when given. */
   href?: string;
 };
@@ -18,8 +20,12 @@ export function LocationCard({ location, className }: { location: LocationCardDa
   );
   const body = (
     <>
-      <div className="flex h-28 items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10">
-        <MapPin className="h-10 w-10 text-primary/40" strokeWidth={1.25} aria-hidden="true" />
+      <div className="relative flex h-28 items-center justify-center overflow-hidden bg-gradient-to-br from-primary/10 to-accent/10">
+        {location.imagePath ? (
+          <Image src={location.imagePath} alt="" fill sizes="(min-width: 640px) 33vw, 100vw" className="object-cover" />
+        ) : (
+          <MapPin className="h-10 w-10 text-primary/40" strokeWidth={1.25} aria-hidden="true" />
+        )}
       </div>
       <div className="p-4">
         <p className="font-[family-name:var(--font-heading)] text-base font-semibold text-text">{location.name}</p>

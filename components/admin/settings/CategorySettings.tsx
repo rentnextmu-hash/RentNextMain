@@ -10,6 +10,7 @@ import { Drawer } from "@/components/ui/Drawer";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Toast } from "@/components/ui/Toast";
 import { useToast } from "@/components/ui/useToast";
 import { CLASS_LABEL } from "@/components/public/CarCard";
@@ -137,6 +138,7 @@ function EditDrawer({ category, onClose }: { category: SettingsCategory; onClose
     rate12: category.rate12,
     rate35: category.rate35,
     rate6: category.rate6,
+    imagePath: category.imagePath ?? "",
     isActive: category.isActive,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -182,6 +184,13 @@ function EditDrawer({ category, onClose }: { category: SettingsCategory; onClose
         <Input label="Tagline" value={v.tagline ?? ""} onChange={(e) => set("tagline", e.target.value)} error={err("tagline")} />
         <Input label="Best for" value={v.bestFor ?? ""} onChange={(e) => set("bestFor", e.target.value)} error={err("bestFor")} />
         <Textarea label="Description" rows={4} value={v.description ?? ""} onChange={(e) => set("description", e.target.value)} error={err("description")} />
+        <ImageUpload
+          bucket="vehicles"
+          label="Photo"
+          value={v.imagePath || null}
+          onChange={(url) => set("imagePath", url ?? "")}
+          hint="A clean cutout on a plain background works best. Shown across the site."
+        />
         <div className="grid grid-cols-3 gap-3">
           <Input label="1–2 days (Rs)" type="number" value={v.rate12} onChange={(e) => set("rate12", Number(e.target.value))} error={err("rate12")} />
           <Input label="3–5 days" type="number" value={v.rate35} onChange={(e) => set("rate35", Number(e.target.value))} error={err("rate35")} />

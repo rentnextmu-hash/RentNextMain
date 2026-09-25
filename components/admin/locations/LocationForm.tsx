@@ -9,6 +9,7 @@ import { Drawer } from "@/components/ui/Drawer";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { Toast, type ToastMessage } from "@/components/ui/Toast";
 import { cn } from "@/lib/utils";
 import { saveLocationAction } from "@/app/(admin)/admin/locations/actions";
@@ -30,6 +31,7 @@ const EMPTY: LocationFormValues = {
   seoTitle: "",
   seoDescription: "",
   introContent: "",
+  imagePath: "",
   driveTimes: [],
   faqs: [],
 };
@@ -235,6 +237,13 @@ export function LocationFormButton({ location }: { location?: LocationFormLocati
               />
               <Counter value={seoDescription} soft={160} className="mt-1 block text-right" />
             </div>
+            <ImageUpload
+              bucket="locations"
+              label="Hero photo"
+              value={(values.imagePath as string) || null}
+              onChange={(url) => set("imagePath", url ?? "")}
+              hint="Shown on the location page and card. A wide landscape photo works best."
+            />
             <div>
               <Textarea
                 label="Intro — “Renting a car in …”"

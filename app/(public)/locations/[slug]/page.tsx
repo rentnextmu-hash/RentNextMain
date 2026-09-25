@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -112,8 +113,15 @@ export default async function LocationPage({ params }: Props) {
 
   return (
     <div>
-      <section className="bg-gradient-to-br from-primary to-primary-deep text-white">
-        <div className="mx-auto max-w-7xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary to-primary-deep text-white">
+        {location.image_path && (
+          <>
+            <Image src={location.image_path} alt="" fill sizes="100vw" priority className="object-cover" />
+            {/* Darken the photo so white text stays legible over it. */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary-deep/80" aria-hidden="true" />
+          </>
+        )}
+        <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-8 sm:px-6 lg:px-8">
           <div className="[&_a]:text-white/70 [&_a:hover]:text-white [&_span]:text-white [&_svg]:text-white/50">
             <Breadcrumbs
               items={[

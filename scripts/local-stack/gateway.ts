@@ -36,5 +36,6 @@ realServe({ port: 54321 }, async (req) => {
   }
   if (url.pathname.startsWith("/rest/v1/")) return proxy(req, "http://127.0.0.1:3001" + url.pathname.slice(8) + url.search);
   if (url.pathname.startsWith("/auth/v1/")) return proxy(req, "http://127.0.0.1:9999" + url.pathname.slice(8) + url.search);
+  if (url.pathname.startsWith("/storage/v1/")) return proxy(req, "http://127.0.0.1:5000" + url.pathname.slice("/storage/v1".length) + url.search);
   return new Response("not found", { status: 404, headers: cors });
 });

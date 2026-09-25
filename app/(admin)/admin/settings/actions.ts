@@ -116,6 +116,7 @@ export async function saveCategoryAction(categoryId: string, values: CategoryFor
         rate_1_2_mur: v.rate12,
         rate_3_5_mur: v.rate35,
         rate_6_plus_mur: v.rate6,
+        image_path: v.imagePath,
         is_active: v.isActive,
       })
       .eq("id", categoryId)

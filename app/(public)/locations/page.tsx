@@ -55,6 +55,7 @@ export default async function LocationsPage() {
               name: l.name,
               region: l.region,
               vehicleCount: fleetCounts.get(l.id) ?? 0,
+              imagePath: l.image_path,
               href: `/locations/${l.slug}`,
             }}
           />

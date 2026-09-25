@@ -275,6 +275,7 @@ export const locationFormSchema = z.object({
   // Google shows ~160 characters; the form warns past that, this only caps abuse.
   seoDescription: optionalText(300),
   introContent: optionalText(4000),
+  imagePath: optionalText(500),
   driveTimes: z
     .array(
       z.object({
@@ -365,6 +366,7 @@ export const categoryFormSchema = z
     rate12: rate,
     rate35: rate,
     rate6: rate,
+    imagePath: optionalText(500),
     isActive: z.boolean(),
   })
   .refine((v) => v.rate12 >= v.rate35 && v.rate35 >= v.rate6, {

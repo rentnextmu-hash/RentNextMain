@@ -68,6 +68,7 @@ export async function saveLocationAction(locationId: string | null, values: Loca
       seo_title: v.seoTitle,
       seo_description: v.seoDescription,
       intro_content: v.introContent,
+      image_path: v.imagePath,
       drive_times: v.driveTimes,
       faqs: v.faqs,
     };

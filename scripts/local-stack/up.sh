@@ -39,7 +39,7 @@ fi
 
 wait_for() { timeout "$2" bash -c "until $1; do sleep 2; done" || { echo "timed out: $1" >&2; exit 1; }; }
 
-docker rm -f rn-pg rn-gotrue rn-rest rn-gateway >/dev/null 2>&1 || true
+docker rm -f rn-pg rn-gotrue rn-rest rn-storage rn-gateway >/dev/null 2>&1 || true
 
 docker run -d --name rn-pg --network host -e POSTGRES_PASSWORD=x public.ecr.aws/supabase/postgres:17.6.1.166 >/dev/null
 wait_for "docker exec rn-pg pg_isready -U postgres -h 127.0.0.1 >/dev/null 2>&1" 90
@@ -62,6 +62,18 @@ done
 docker run -d --name rn-rest --network host -e PGRST_DB_URI="postgres://authenticator:x@127.0.0.1:5432/postgres" \
   -e PGRST_DB_SCHEMAS=public -e PGRST_DB_ANON_ROLE=anon -e PGRST_JWT_SECRET="$SECRET" -e PGRST_SERVER_PORT=3001 \
   public.ecr.aws/supabase/postgrest:v14.5 >/dev/null
+
+# Storage: creates its own storage schema on first boot. supabase_storage_admin
+# already has password 'x' in this image (like the other service roles).
+docker run -d --name rn-storage --network host \
+  -e ANON_KEY="$ANON" -e SERVICE_KEY="$SERVICE" -e POSTGREST_URL="http://127.0.0.1:3001" \
+  -e PGRST_JWT_SECRET="$SECRET" -e AUTH_JWT_SECRET="$SECRET" \
+  -e DATABASE_URL="postgres://supabase_storage_admin:x@127.0.0.1:5432/postgres" -e DB_INSTALL_ROLES=false \
+  -e FILE_SIZE_LIMIT=52428800 -e STORAGE_BACKEND=file -e FILE_STORAGE_BACKEND_PATH=/var/lib/storage \
+  -e TENANT_ID=stub -e REGION=local -e GLOBAL_S3_BUCKET=stub -e ENABLE_IMAGE_TRANSFORMATION=false \
+  -e SERVER_PORT=5000 -e PGOPTIONS="-c search_path=storage,public" \
+  public.ecr.aws/supabase/storage-api:v1.77.5 >/dev/null
+wait_for "curl -s -o /dev/null http://127.0.0.1:5000/status" 90
 docker run -d --name rn-gateway --network host -v "$PWD":/app -w /app \
   -e SUPABASE_URL=http://127.0.0.1:54321 -e SUPABASE_SERVICE_ROLE_KEY="$SERVICE" -e BOOKING_LINK_SECRET=local-link-secret \
   denoland/deno:2.5.6 run -A --config supabase/functions/deno.json scripts/local-stack/gateway.ts >/dev/null
