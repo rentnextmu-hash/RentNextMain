@@ -319,3 +319,76 @@ export const hotelFormSchema = z.object({
 });
 
 export type HotelFormValues = z.input<typeof hotelFormSchema>;
+
+// ── Settings, categories, add-ons (P9.3) ────────────────────────────────
+
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+export const settingsFormSchema = z.object({
+  company: z.object({
+    company_name: z.string().trim().min(1, "Enter the company name.").max(120),
+    company_tagline: z.string().trim().max(160),
+    company_email: z.union([z.literal(""), z.email("Enter a valid email address.")]),
+    company_phone: z.string().trim().max(40),
+    company_whatsapp: z.string().trim().max(40),
+    company_address: z.string().trim().max(300),
+    company_website: z.string().trim().max(120),
+  }),
+  booking: z.object({
+    default_pickup_time: z.string().regex(TIME_PATTERN, "Use HH:mm, e.g. 10:00."),
+    default_return_time: z.string().regex(TIME_PATTERN, "Use HH:mm, e.g. 10:00."),
+    minimum_rental_days: z.coerce.number().int("Whole days.").min(1, "At least 1 day.").max(30),
+    advance_booking_days: z.coerce.number().int("Whole days.").min(1, "At least 1 day.").max(730),
+    cancellation_hours: z.coerce.number().int("Whole hours.").min(0).max(720),
+    booking_email: z.union([z.literal(""), z.email("Enter a valid email address.")]),
+  }),
+});
+
+export type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+
+// Rates strictly decrease with duration in this model; the form enforces
+// 1–2 day ≥ 3–5 day ≥ 6+ day so the public "from" price stays honest.
+const rate = z.coerce.number("Enter a rate.").int("Whole rupees.").min(1, "Must be positive.").max(1_000_000);
+
+export const categoryFormSchema = z
+  .object({
+    name: z.string().trim().min(1, "Enter the name.").max(80),
+    tagline: optionalText(160),
+    bestFor: optionalText(120),
+    description: optionalText(600),
+    transmission: z.enum(["automatic", "manual"]),
+    fuelType: z.enum(["petrol", "diesel", "hybrid", "electric"]),
+    seats: z.coerce.number().int().min(1).max(20),
+    doors: z.coerce.number().int().min(1).max(10),
+    luggageCapacity: z.preprocess(blankToUndefined, z.coerce.number().int().min(0).max(20).nullable().default(null)),
+    airConditioning: z.boolean(),
+    rate12: rate,
+    rate35: rate,
+    rate6: rate,
+    isActive: z.boolean(),
+  })
+  .refine((v) => v.rate12 >= v.rate35 && v.rate35 >= v.rate6, {
+    message: "Rates should fall (or stay level) the longer the rental: 1–2 days ≥ 3–5 days ≥ 6+ days.",
+    path: ["rate35"],
+  });
+
+export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
+
+/** Just the three rates, for the inline table edit. */
+export const categoryRatesSchema = z
+  .object({ rate12: rate, rate35: rate, rate6: rate })
+  .refine((v) => v.rate12 >= v.rate35 && v.rate35 >= v.rate6, {
+    message: "Rates should fall the longer the rental.",
+    path: ["rate35"],
+  });
+
+export const addOnFormSchema = z.object({
+  name: z.string().trim().min(1, "Enter the name.").max(80),
+  description: optionalText(300),
+  priceMur: z.coerce.number("Enter a price.").int("Whole rupees.").min(0).max(1_000_000),
+  priceType: z.enum(["per_day", "per_booking"]),
+  maxQuantity: z.coerce.number().int().min(1, "At least 1.").max(10),
+  isActive: z.boolean(),
+});
+
+export type AddOnFormValues = z.infer<typeof addOnFormSchema>;

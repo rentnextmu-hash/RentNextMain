@@ -15,3 +15,14 @@ export async function getActiveAddOns(supabase: Client): Promise<AddOn[]> {
   if (error) throw error;
   return data ?? [];
 }
+
+/** Every add-on including inactive ones — for the settings page. */
+export async function getAllAddOns(supabase: Client): Promise<AddOn[]> {
+  const { data, error } = await supabase
+    .from("add_ons")
+    .select("*")
+    .order("price_type", { ascending: true })
+    .order("price_mur", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}

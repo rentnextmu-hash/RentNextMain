@@ -83,3 +83,13 @@ export async function getCategoriesWithFleetAvailability(supabase: Client): Prom
     availableCount: countByCategory.get(category.id) ?? 0,
   }));
 }
+
+/** Every category including inactive ones, in display order — for the settings page. */
+export async function getAllCategories(supabase: Client): Promise<VehicleCategory[]> {
+  const { data, error } = await supabase
+    .from("vehicle_categories")
+    .select("*")
+    .order("display_order", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}

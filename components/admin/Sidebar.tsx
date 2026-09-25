@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { href: "/admin/customers", label: "Customers", icon: Users, enabled: false },
   { href: "/admin/payments", label: "Payments", icon: Banknote, enabled: false },
   { href: "/admin/reports", label: "Reports", icon: BarChart3, enabled: false },
-  { href: "/admin/settings", label: "Settings", icon: Settings, enabled: false },
+  { href: "/admin/settings", label: "Settings", icon: Settings, enabled: true },
 ];
 
 export function Sidebar() {
