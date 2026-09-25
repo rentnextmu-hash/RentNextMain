@@ -32,6 +32,12 @@ function revalidateBooking(reference: string) {
 function messageFrom(err: unknown): string {
   if (err && typeof err === "object" && "message" in err && typeof err.message === "string") {
     const code = "code" in err ? err.code : undefined;
+    // 23P01 = exclusion_violation: the no-double-booking constraint fired.
+    // The app-level availability check should catch this first, so this is
+    // the race safety net — another staff member just took the car.
+    if (code === "23P01") {
+      return "That vehicle was just booked for an overlapping period by someone else. Refresh and pick another car.";
+    }
     if (code === "23514" || err.message.startsWith("Your session")) return err.message;
     console.error(err);
   } else {

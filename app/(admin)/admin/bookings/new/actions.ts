@@ -139,6 +139,15 @@ export async function createStaffBookingAction(payload: StaffBookingRequest): Pr
     return { ok: true, reference: created.reference };
   } catch (err) {
     if (err instanceof AuthError) return { ok: false, error: err.message };
+    // 23P01 = the no-double-booking exclusion constraint fired between the
+    // availability check above and the insert (another staff took the car).
+    if (err && typeof err === "object" && "code" in err && err.code === "23P01") {
+      return {
+        ok: false,
+        error: "That vehicle was just booked for an overlapping period. Pick another car or leave it unassigned.",
+        fieldErrors: { vehicleId: "No longer free — pick another car." },
+      };
+    }
     console.error(err);
     return { ok: false, error: "Something went wrong creating the booking. Nothing was saved — please try again." };
   }
