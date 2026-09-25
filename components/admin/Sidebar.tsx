@@ -24,7 +24,7 @@ const NAV_ITEMS = [
   { href: "/admin/calendar", label: "Calendar", icon: CalendarDays, enabled: true },
   { href: "/admin/locations", label: "Locations", icon: MapPin, enabled: true },
   { href: "/admin/hotels", label: "Hotels", icon: Building2, enabled: true },
-  { href: "/admin/customers", label: "Customers", icon: Users, enabled: false },
+  { href: "/admin/customers", label: "Customers", icon: Users, enabled: true },
   { href: "/admin/payments", label: "Payments", icon: Banknote, enabled: false },
   { href: "/admin/reports", label: "Reports", icon: BarChart3, enabled: false },
   { href: "/admin/settings", label: "Settings", icon: Settings, enabled: true },
