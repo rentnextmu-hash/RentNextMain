@@ -5,6 +5,8 @@ import { mauritiusMonthRange } from "@/lib/format";
 import { LocationList } from "@/components/admin/locations/LocationList";
 import { LocationFormButton } from "@/components/admin/locations/LocationForm";
 
+export const metadata = { title: "Locations" };
+
 export default async function AdminLocationsPage() {
   const supabase = await createClient();
   const [locations, staff] = await Promise.all([getLocationsAdmin(supabase, mauritiusMonthRange()), getCurrentStaff()]);

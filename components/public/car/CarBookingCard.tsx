@@ -158,11 +158,11 @@ export function CarBookingCard({
               <span className="font-semibold">{formatMUR(estimate.carTotalMur)}</span>
             </p>
             {tooShort && (
-              <p className="mt-1 text-warning">The minimum rental is {minimumRentalDays} days.</p>
+              <p className="mt-1 text-warning-deep">The minimum rental is {minimumRentalDays} days.</p>
             )}
           </>
         ) : (
-          <p className="text-warning">Return must be after pickup.</p>
+          <p className="text-warning-deep">Return must be after pickup.</p>
         )}
       </div>
 
@@ -218,7 +218,7 @@ export function CarBookingCard({
             </div>
           )}
           {result.status === "error" && (
-            <p className="mt-4 text-sm text-warning" role="status">
+            <p className="mt-4 text-sm text-warning-deep" role="status">
               We couldn&apos;t check availability just now.{" "}
               <Link href={bookingHref(car.slug)} className="font-medium text-primary hover:underline">
                 Continue anyway

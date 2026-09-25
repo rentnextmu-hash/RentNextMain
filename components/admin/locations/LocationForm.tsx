@@ -44,7 +44,7 @@ const slugify = (s: string) =>
 
 function Counter({ value, soft, className }: { value: string; soft: number; className?: string }) {
   return (
-    <span className={cn("text-xs", value.length > soft ? "font-medium text-warning" : "text-text-muted", className)}>
+    <span className={cn("text-xs", value.length > soft ? "font-medium text-warning-deep" : "text-text-muted", className)}>
       {value.length} / {soft}
       {value.length > soft && " — search engines will cut this short"}
     </span>

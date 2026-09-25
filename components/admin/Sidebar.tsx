@@ -48,13 +48,13 @@ export function Sidebar() {
             return (
               <div
                 key={item.href}
-                className="flex items-center justify-between rounded-[var(--radius-md)] px-3 py-2 text-sm text-white/40"
+                className="flex items-center justify-between rounded-[var(--radius-md)] px-3 py-2 text-sm text-white/60"
               >
                 <span className="flex items-center gap-3">
                   <Icon className="h-4 w-4" aria-hidden="true" />
                   {item.label}
                 </span>
-                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide">
+                <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white/80">
                   Soon
                 </span>
               </div>

@@ -31,6 +31,10 @@
   --color-warning: var(--color-warning);
   --color-error: var(--color-error);
   --color-info: var(--color-info);
+  --color-success-deep: var(--color-success-deep);
+  --color-warning-deep: var(--color-warning-deep);
+  --color-error-deep: var(--color-error-deep);
+  --color-info-deep: var(--color-info-deep);
 
   /* Radii */
   --radius-sm: var(--radius-sm);

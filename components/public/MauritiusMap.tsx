@@ -90,7 +90,7 @@ export function MauritiusMap({ locations }: { locations: MapLocation[] }) {
 
   return (
     <figure className="relative mx-auto w-full max-w-md">
-      <svg viewBox={`-20 -20 ${WIDTH + 40} ${HEIGHT + 40}`} className="h-auto w-full" role="img" aria-labelledby="map-title">
+      <svg viewBox={`-20 -20 ${WIDTH + 40} ${HEIGHT + 40}`} className="h-auto w-full" aria-label={`Map of Mauritius with our ${locations.length} pickup locations`}>
         {/* One string child: React 19 treats <title> specially and mixed text children break hydration. */}
         <title id="map-title">{`Map of Mauritius showing our ${locations.length} pickup locations`}</title>
         <polygon

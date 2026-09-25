@@ -11,6 +11,8 @@ import { addDaysToDateKey, toDateKey } from "@/lib/format";
 import { StaffBookingForm, type StaffBookingPrefill } from "@/components/admin/bookings/StaffBookingForm";
 import type { AddOnPriceType, LocationType } from "@/types/enums";
 
+export const metadata = { title: "New booking" };
+
 const DATE_KEY = /^\d{4}-\d{2}-\d{2}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

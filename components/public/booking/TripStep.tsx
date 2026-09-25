@@ -202,7 +202,7 @@ export function TripStep() {
 
         {unavailable && (
           <div role="alert" className="rounded-[var(--radius-lg)] border border-warning/40 bg-warning/10 p-5">
-            <p className="flex items-center gap-2 font-medium text-warning">
+            <p className="flex items-center gap-2 font-medium text-warning-deep">
               <AlertTriangle className="h-4 w-4" aria-hidden="true" />
               The {category.name} isn&apos;t available at {pickupLocation?.name} for these dates.
             </p>
@@ -235,7 +235,7 @@ export function TripStep() {
         )}
 
         {availability.status === "error" && (
-          <p className="rounded-[var(--radius-md)] bg-warning/10 px-4 py-3 text-sm text-warning">
+          <p className="rounded-[var(--radius-md)] bg-warning/10 px-4 py-3 text-sm text-warning-deep">
             We couldn&apos;t check live availability just now. You can carry on — we&apos;ll confirm the car is free
             before your booking is placed.
           </p>

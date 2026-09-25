@@ -19,6 +19,8 @@ import {
   type RawSearchParams,
 } from "@/components/admin/bookings/listParams";
 
+export const metadata = { title: "Bookings" };
+
 const PAGE_SIZE = 25;
 
 const STATUS_TILE_LABEL: Record<string, string> = {
@@ -145,7 +147,7 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
                       <Link href={href} className="whitespace-nowrap font-mono font-semibold text-text hover:text-primary hover:underline">
                         {b.reference}
                       </Link>
-                      {reason && <span className="block whitespace-nowrap text-xs text-warning">{ATTENTION_LABEL[reason]}</span>}
+                      {reason && <span className="block whitespace-nowrap text-xs text-warning-deep">{ATTENTION_LABEL[reason]}</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span className="block text-text">
@@ -158,7 +160,7 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
                       {b.vehicle ? (
                         <span className="whitespace-nowrap font-mono text-text">{b.vehicle.code}</span>
                       ) : (
-                        <span className="font-medium text-warning">Unassigned</span>
+                        <span className="font-medium text-warning-deep">Unassigned</span>
                       )}
                     </td>
                     <td className="px-4 py-3">

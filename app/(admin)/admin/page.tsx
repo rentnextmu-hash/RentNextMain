@@ -8,6 +8,8 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatMUR, formatDate } from "@/lib/format";
 
+export const metadata = { title: "Dashboard" };
+
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const [fleet, activity, recentBookings, upcomingReturns, categories] = await Promise.all([

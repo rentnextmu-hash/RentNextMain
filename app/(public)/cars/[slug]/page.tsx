@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: `/cars/${car.slug}` },
-    openGraph: { title, description, images: car.image_path ? [car.image_path] : undefined },
+    openGraph: { title, description },
   };
 }
 
@@ -132,17 +132,17 @@ export default async function CarDetailPage({ params }: Props) {
             {car.tagline && <p className="mt-4 text-lg text-text">{car.tagline}</p>}
           </div>
 
-          <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             {specs.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3">
+              <li key={label} className="flex items-center gap-3 rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3">
                 <Icon className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                 <div>
-                  <dt className="text-xs text-text-muted">{label}</dt>
-                  <dd className="text-sm font-medium text-text">{value}</dd>
+                  <p className="text-xs text-text-muted">{label}</p>
+                  <p className="text-sm font-medium text-text">{value}</p>
                 </div>
-              </div>
+              </li>
             ))}
-          </dl>
+          </ul>
 
           {car.description && <p className="leading-relaxed text-text">{car.description}</p>}
 

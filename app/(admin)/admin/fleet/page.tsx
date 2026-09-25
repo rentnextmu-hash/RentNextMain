@@ -8,6 +8,8 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Car } from "lucide-react";
 
+export const metadata = { title: "Fleet" };
+
 export default async function FleetPage() {
   const supabase = await createClient();
   const [vehicles, categories, locations] = await Promise.all([

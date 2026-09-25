@@ -13,6 +13,8 @@ import { StatCard } from "@/components/admin/StatCard";
 import { HotelFormButton } from "@/components/admin/hotels/HotelForm";
 import type { ContractStatus } from "@/types/enums";
 
+export const metadata = { title: "Hotel partners" };
+
 const STATUSES: ContractStatus[] = ["active", "pending", "inactive"];
 
 export default async function AdminHotelsPage({

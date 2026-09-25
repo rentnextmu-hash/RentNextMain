@@ -215,7 +215,7 @@ export default async function BookingDetailPage({
               </dl>
             ) : open ? (
               <div className="rounded-[var(--radius-md)] border border-warning/40 bg-warning/10 p-4">
-                <p className="mb-3 flex items-center gap-2 text-sm font-medium text-warning">
+                <p className="mb-3 flex items-center gap-2 text-sm font-medium text-warning-deep">
                   <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                   No vehicle assigned yet. These {booking.category.name} vehicles are free for the whole rental:
                 </p>
@@ -262,7 +262,7 @@ export default async function BookingDetailPage({
                 </tr>
                 {booking.price_override_reason && (
                   <tr>
-                    <td colSpan={2} className="pt-1 text-xs text-warning">
+                    <td colSpan={2} className="pt-1 text-xs text-warning-deep">
                       Price overridden: {booking.price_override_reason}
                     </td>
                   </tr>
@@ -295,7 +295,7 @@ export default async function BookingDetailPage({
               <span className="text-text-muted">Paid</span> <span className="font-medium">{formatMUR(paidMur)}</span>
               <span className="mx-2 text-text-muted">·</span>
               <span className="text-text-muted">Outstanding</span>{" "}
-              <span className={cn("font-medium", outstandingMur > 0 ? "text-warning" : "text-success")}>
+              <span className={cn("font-medium", outstandingMur > 0 ? "text-warning-deep" : "text-success")}>
                 {formatMUR(outstandingMur)}
               </span>
             </p>

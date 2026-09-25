@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { addDaysToDateKey, daysBetween, toDateKey } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+export const metadata = { title: "Calendar" };
+
 const VISIBLE_DAYS = 14;
 const DAY_WIDTH = 48;
 const VEHICLE_COL_WIDTH = 200;

@@ -305,7 +305,7 @@ export function ChangeStatusButton({
             ))}
           </Select>
           {openBookingReference && (status === "maintenance" || status === "inactive") && (
-            <p className="rounded-[var(--radius-md)] bg-warning/10 px-3 py-2 text-sm text-warning">
+            <p className="rounded-[var(--radius-md)] bg-warning/10 px-3 py-2 text-sm text-warning-deep">
               {code} is still assigned to booking {openBookingReference}. Reassign that booking to another car.
             </p>
           )}

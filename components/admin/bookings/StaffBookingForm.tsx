@@ -482,7 +482,7 @@ export function StaffBookingForm({
               <span className="text-sm text-text-muted">
                 {pricing.days} day{pricing.days === 1 ? "" : "s"}
                 {pricing.days < minimumRentalDays && (
-                  <span className="text-warning"> · below the website&apos;s {minimumRentalDays}-day minimum</span>
+                  <span className="text-warning-deep"> · below the website&apos;s {minimumRentalDays}-day minimum</span>
                 )}
               </span>
             )}
@@ -513,7 +513,7 @@ export function StaffBookingForm({
               </legend>
               {err("vehicleId") && <p className="mb-2 text-sm text-error">{err("vehicleId")}</p>}
               {prefilledVehicle.current && vehicles && !vehicles.some((v) => v.id === prefilledVehicle.current) && (
-                <p className="mb-2 rounded-[var(--radius-md)] bg-warning/10 px-3 py-2 text-sm text-warning">
+                <p className="mb-2 rounded-[var(--radius-md)] bg-warning/10 px-3 py-2 text-sm text-warning-deep">
                   The car you started from isn&apos;t free for these dates.
                 </p>
               )}
@@ -548,7 +548,7 @@ export function StaffBookingForm({
                   </label>
                 ))}
                 {vehicles && vehicles.length === 0 && !loadingVehicles && (
-                  <p className="px-3 py-2.5 text-sm text-warning">
+                  <p className="px-3 py-2.5 text-sm text-warning-deep">
                     No {category?.name} is free for these dates. You can still save it unassigned.
                   </p>
                 )}

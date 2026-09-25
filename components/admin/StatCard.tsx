@@ -5,7 +5,7 @@ const ACCENT: Record<"neutral" | "success" | "info" | "warning", string> = {
   neutral: "bg-surface-alt text-text",
   success: "bg-success/10 text-success",
   info: "bg-info/10 text-info",
-  warning: "bg-warning/10 text-warning",
+  warning: "bg-warning/10 text-warning-deep",
 };
 
 export function StatCard({

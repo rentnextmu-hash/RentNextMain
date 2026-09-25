@@ -26,7 +26,7 @@
 
   /* Text */
   --color-text: #1a1f26;
-  --color-text-muted: #6b7280;
+  --color-text-muted: #5b6472;
   --color-text-inverse: #ffffff;
 
   /* Status */
@@ -34,6 +34,11 @@
   --color-warning: #c97a0e;
   --color-error: #c0392b;
   --color-info: #2563a0;
+  /* Deeper status shades for text on the 10% status tints — WCAG AA (4.5:1). */
+  --color-success-deep: #15794a;
+  --color-warning-deep: #8a5200;
+  --color-error-deep: #b0281b;
+  --color-info-deep: #1f568c;
 
   /* Radii */
   --radius-sm: 6px;

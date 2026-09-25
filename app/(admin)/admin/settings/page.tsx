@@ -10,6 +10,8 @@ import { CategorySettings } from "@/components/admin/settings/CategorySettings";
 import { AddOnSettings } from "@/components/admin/settings/AddOnSettings";
 import type { VehicleCategoryClass } from "@/types/enums";
 
+export const metadata = { title: "Settings" };
+
 export default async function AdminSettingsPage() {
   const staff = await getCurrentStaff();
 

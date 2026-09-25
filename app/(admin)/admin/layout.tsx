@@ -1,7 +1,15 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { Topbar } from "@/components/admin/Topbar";
 import { getCurrentStaff } from "@/lib/auth";
+
+// Admin tabs read "<Page> · Rent Next Admin"; pages set the "%s". The admin
+// area is never indexed.
+export const metadata: Metadata = {
+  title: { template: "%s · Rent Next Admin", default: "Admin · Rent Next Car Hire" },
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const staff = await getCurrentStaff();

@@ -92,7 +92,7 @@ export function CarStep() {
       </div>
 
       {availability.status === "error" && (
-        <p className="mt-4 rounded-[var(--radius-md)] bg-warning/10 px-4 py-3 text-sm text-warning">
+        <p className="mt-4 rounded-[var(--radius-md)] bg-warning/10 px-4 py-3 text-sm text-warning-deep">
           We couldn&apos;t check live availability just now. You can still choose a car — we&apos;ll confirm it&apos;s
           free before your booking is placed.
         </p>
@@ -106,9 +106,11 @@ export function CarStep() {
             <li key={category.id}>
               <div
                 className={cn(
-                  "flex flex-col gap-4 rounded-[var(--radius-lg)] border bg-surface p-4 transition-shadow sm:flex-row sm:items-center",
+                  "flex flex-col gap-4 rounded-[var(--radius-lg)] border p-4 transition-shadow sm:flex-row sm:items-center",
                   selected ? "border-primary ring-1 ring-primary" : "border-border",
-                  unavailable ? "opacity-60" : "hover:shadow-[var(--shadow-md)]",
+                  // Unavailable cars read as inactive via a muted background
+                  // rather than reduced opacity, which keeps text at full contrast.
+                  unavailable ? "bg-surface-alt" : "bg-surface hover:shadow-[var(--shadow-md)]",
                 )}
               >
                 <div className="relative flex h-28 w-full shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-surface-alt sm:w-44">
