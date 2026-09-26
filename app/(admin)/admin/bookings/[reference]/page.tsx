@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { AlertTriangle, ArrowLeft, Check, Mail, MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBookingDetail } from "@/lib/queries/bookings";
-import { getAvailableVehicles, type AvailableVehicle } from "@/lib/availability";
+import { rankVehiclesForBooking, type RankedVehicle } from "@/lib/assignment";
 import { isOpenBooking } from "@/lib/bookingStatus";
 import { formatDate, formatDateTime, formatDateTimeLong, formatMUR } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -51,14 +51,15 @@ export default async function BookingDetailPage({
 
   const open = isOpenBooking(booking.status);
   const canChangeVehicle = booking.status === "requested" || booking.status === "confirmed";
-  const vehicles: AvailableVehicle[] = canChangeVehicle
-    ? await getAvailableVehicles(
+  const vehicles: RankedVehicle[] = canChangeVehicle
+    ? await rankVehiclesForBooking(
         supabase,
         {
           categoryId: booking.category_id,
-          from: booking.pickup_at,
-          to: booking.return_at,
-          preferLocationId: booking.pickup_location_id,
+          pickupAt: booking.pickup_at,
+          returnAt: booking.return_at,
+          pickupLocationId: booking.pickup_location_id,
+          returnLocationId: booking.return_location_id,
         },
         { excludeBookingId: booking.id },
       )

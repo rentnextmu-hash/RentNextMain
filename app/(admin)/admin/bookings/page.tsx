@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarX, Download, Plus } from "lucide-react";
+import { CalendarX, Download, Plus, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBookingsPage } from "@/lib/queries/bookings";
 import { getActiveLocations } from "@/lib/queries/locations";
@@ -43,6 +43,13 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
     sort: params.sort,
   });
 
+  // How many open bookings still need a car — drives the assignment-queue link.
+  const { count: unassignedCount } = await supabase
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .is("vehicle_id", null)
+    .in("status", ["requested", "confirmed"]);
+
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const now = new Date();
   const exportHref = bookingListHref(params, { page: 1 }).replace("/admin/bookings", "/admin/bookings/export");
@@ -57,6 +64,21 @@ export default async function BookingsPage({ searchParams }: { searchParams: Pro
           </p>
         </div>
         <div className="flex items-center gap-2">
+        <Link
+          href="/admin/bookings/assign"
+          className={cn(
+            "inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border px-3 text-sm font-medium",
+            unassignedCount
+              ? "border-warning/40 bg-warning/10 text-warning-deep hover:bg-warning/15"
+              : "border-admin-border bg-admin-surface text-text hover:bg-surface-alt",
+          )}
+        >
+          <Sparkles className="h-4 w-4" aria-hidden="true" />
+          Assign queue
+          {unassignedCount ? (
+            <span className="rounded-full bg-warning-deep px-1.5 text-xs font-semibold text-white">{unassignedCount}</span>
+          ) : null}
+        </Link>
         <a
           href={exportHref}
           className="inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] border border-admin-border bg-admin-surface px-3 text-sm font-medium text-text hover:bg-surface-alt"

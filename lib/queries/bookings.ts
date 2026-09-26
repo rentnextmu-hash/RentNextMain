@@ -157,6 +157,23 @@ export async function getBookingsPage(
   };
 }
 
+/**
+ * Open bookings (requested or confirmed) with no vehicle yet — the work list
+ * for the assignment queue. Soonest pickup first, so the most urgent gaps
+ * surface at the top.
+ */
+export async function getUnassignedBookings(supabase: Client): Promise<BookingWithRelations[]> {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(BOOKING_RELATIONS_SELECT)
+    .is("vehicle_id", null)
+    .in("status", ["requested", "confirmed"])
+    .order("pickup_at", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as unknown as BookingWithRelations[];
+}
+
 export async function getBookingByReference(
   supabase: Client,
   reference: string,

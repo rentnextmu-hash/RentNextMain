@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentStaff } from "@/lib/auth";
-import { getAvailableVehicles, isVehicleAvailable } from "@/lib/availability";
+import { isVehicleAvailable } from "@/lib/availability";
+import { pickBestVehicleId } from "@/lib/assignment";
 import { canTransition } from "@/lib/bookingStatus";
 import { assignBookingVehicle, getBookingById, transitionBooking } from "@/lib/queries/bookings";
 import { completeBookingSchema, internalNotesSchema, recordPaymentSchema } from "@/lib/validation";
@@ -22,6 +23,7 @@ async function staffContext() {
 function revalidateBooking(reference: string) {
   revalidatePath(`/admin/bookings/${reference}`);
   revalidatePath("/admin/bookings");
+  revalidatePath("/admin/bookings/assign");
   revalidatePath("/admin/fleet");
   revalidatePath("/admin/calendar");
   revalidatePath("/admin");
@@ -67,17 +69,19 @@ export async function confirmBooking(bookingId: string): Promise<ActionResult> {
   return run(bookingId, async ({ supabase }, booking) => {
     if (!canTransition(booking.status, "confirmed")) throw new UserError(`A ${booking.status} booking can't be confirmed.`);
 
-    // Confirming assigns a car if none is assigned yet: the free car at
-    // the pickup location with the lowest mileage, else one elsewhere.
+    // Confirming assigns a car if none is assigned yet, using the shared
+    // assignment engine (lib/assignment.ts) — the same ranking staff see in
+    // the Assign dialog, so the auto-pick matches the top recommendation.
     let vehicleId: string | undefined;
     if (!booking.vehicle_id) {
-      const [best] = await getAvailableVehicles(
+      const best = await pickBestVehicleId(
         supabase,
         {
           categoryId: booking.category_id,
-          from: booking.pickup_at,
-          to: booking.return_at,
-          preferLocationId: booking.pickup_location_id,
+          pickupAt: booking.pickup_at,
+          returnAt: booking.return_at,
+          pickupLocationId: booking.pickup_location_id,
+          returnLocationId: booking.return_location_id,
         },
         { excludeBookingId: booking.id },
       );
@@ -86,7 +90,7 @@ export async function confirmBooking(bookingId: string): Promise<ActionResult> {
           `No ${booking.category.name} is free for these dates. Change the dates or car, or cancel the request.`,
         );
       }
-      vehicleId = best.id;
+      vehicleId = best;
     }
 
     await transitionBooking(supabase, booking.id, "confirmed", { vehicleId });

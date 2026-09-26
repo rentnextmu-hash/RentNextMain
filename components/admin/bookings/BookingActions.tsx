@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { CheckCircle2, Car, KeyRound, Flag, XCircle, Printer } from "lucide-react";
+import { CheckCircle2, Car, KeyRound, Flag, XCircle, Printer, Sparkles, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { canTransition } from "@/lib/bookingStatus";
-import type { AvailableVehicle } from "@/lib/availability";
+import type { RankedVehicle } from "@/lib/assignment";
 import {
   assignVehicle,
   cancelBooking,
@@ -68,7 +68,7 @@ export function AssignVehicleList({
   onAssigned,
 }: {
   booking: ActionBooking;
-  vehicles: AvailableVehicle[];
+  vehicles: RankedVehicle[];
   onAssigned?: () => void;
 }) {
   const { pending, result, run } = useBookingAction();
@@ -85,21 +85,38 @@ export function AssignVehicleList({
 
   return (
     <div className="space-y-3">
-      <ul className="max-h-80 divide-y divide-admin-border overflow-y-auto rounded-[var(--radius-md)] border border-admin-border">
+      <ul className="max-h-96 divide-y divide-admin-border overflow-y-auto rounded-[var(--radius-md)] border border-admin-border">
         {candidates.map((v) => (
-          <li key={v.id} className="flex items-center justify-between gap-3 px-3 py-2.5">
-            <div className="text-sm">
-              <span className="font-mono font-semibold text-text">{v.code}</span>{" "}
-              <span className="font-mono text-text-muted">{v.registration}</span>
-              <span className="block text-xs text-text-muted">
+          <li
+            key={v.id}
+            className={cn("flex items-start justify-between gap-3 px-3 py-2.5", v.recommended && "bg-success/5")}
+          >
+            <div className="min-w-0 text-sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-mono font-semibold text-text">{v.code}</span>
+                <span className="font-mono text-xs text-text-muted">{v.registration}</span>
+                {v.recommended && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success-deep">
+                    <Sparkles className="h-3 w-3" aria-hidden="true" /> Recommended
+                  </span>
+                )}
+              </div>
+              <span className="mt-0.5 block text-xs text-text-muted">
                 {v.locationName}
                 {v.locationId === booking.pickupLocationId && " (pickup location)"} ·{" "}
                 {v.mileageKm.toLocaleString("en-US")} km
               </span>
+              {v.reasons.length > 0 && <p className="mt-1 text-xs text-text-muted">{v.reasons.join(" · ")}</p>}
+              {v.warnings.map((w) => (
+                <p key={w} className="mt-1 flex items-start gap-1 text-xs text-warning-deep">
+                  <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
+                  <span>{w}</span>
+                </p>
+              ))}
             </div>
             <Button
               size="sm"
-              variant="secondary"
+              variant={v.recommended ? "primary" : "secondary"}
               loading={pending && choosing === v.id}
               disabled={pending}
               onClick={() => {
@@ -117,7 +134,7 @@ export function AssignVehicleList({
   );
 }
 
-export function BookingActions({ booking, vehicles }: { booking: ActionBooking; vehicles: AvailableVehicle[] }) {
+export function BookingActions({ booking, vehicles }: { booking: ActionBooking; vehicles: RankedVehicle[] }) {
   const { pending, result, run, isBusy } = useBookingAction();
   const [dialog, setDialog] = useState<null | "assign" | "complete" | "cancel">(null);
   const close = () => setDialog(null);
