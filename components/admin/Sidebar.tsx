@@ -13,6 +13,7 @@ import {
   Users,
   Banknote,
   BarChart3,
+  ScrollText,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { href: "/admin/customers", label: "Customers", icon: Users, enabled: true },
   { href: "/admin/payments", label: "Payments", icon: Banknote, enabled: false },
   { href: "/admin/reports", label: "Reports", icon: BarChart3, enabled: false },
+  { href: "/admin/audit", label: "Audit log", icon: ScrollText, enabled: true },
   { href: "/admin/settings", label: "Settings", icon: Settings, enabled: true },
 ];
 

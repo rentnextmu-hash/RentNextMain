@@ -517,4 +517,14 @@ insert into settings (key, value) values ('rental_faqs', '[
 ]')
 on conflict (key) do update set value = excluded.value;
 
+-- Seeding fires the audit trigger (0014) on every insert/update, which would
+-- fill the log with setup noise. Clear it so a freshly seeded DB starts with
+-- an empty, real audit history. Guarded for DBs seeded before 0014 existed.
+do $$
+begin
+  if to_regclass('public.audit_log') is not null then
+    execute 'truncate table public.audit_log restart identity';
+  end if;
+end $$;
+
 commit;
