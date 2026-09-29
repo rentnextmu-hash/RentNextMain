@@ -31,3 +31,5 @@ export type AddOnPriceType = "per_day" | "per_booking";
 export type PaymentMethod = "cash" | "card" | "transfer" | "online";
 export type PaymentStatus = "pending" | "paid" | "refunded" | "failed";
 export type StaffRole = "owner" | "manager" | "staff";
+export type InspectionKind = "checkout" | "checkin";
+export type FuelLevel = "empty" | "quarter" | "half" | "three_quarters" | "full";

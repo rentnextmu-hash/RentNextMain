@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { AlertTriangle, ArrowLeft, Check, Mail, MessageCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getBookingDetail } from "@/lib/queries/bookings";
+import { getBookingInspections } from "@/lib/queries/inspections";
+import { signInspectionPhotos } from "@/lib/storage";
 import { rankVehiclesForBooking, type RankedVehicle } from "@/lib/assignment";
 import { isOpenBooking } from "@/lib/bookingStatus";
 import { formatDate, formatDateTime, formatDateTimeLong, formatMUR } from "@/lib/format";
@@ -12,7 +14,9 @@ import { StatusPill } from "@/components/ui/StatusPill";
 import { CopyReferenceButton } from "@/components/public/booking/ConfirmationActions";
 import { AssignVehicleList, BookingActions, type ActionBooking } from "@/components/admin/bookings/BookingActions";
 import { InternalNotes, RecordPaymentForm } from "@/components/admin/bookings/BookingPanels";
+import { InspectionsPanel, type InspectionView } from "@/components/admin/bookings/InspectionsPanel";
 import { SOURCES } from "@/components/admin/bookings/listParams";
+import type { FuelLevel, InspectionKind } from "@/types/enums";
 
 function Card({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
@@ -64,6 +68,23 @@ export default async function BookingDetailPage({
         { excludeBookingId: booking.id },
       )
     : [];
+
+  // Inspections + short-lived signed URLs for their private-bucket photos.
+  const inspectionRows = await getBookingInspections(supabase, booking.id);
+  const inspections: InspectionView[] = await Promise.all(
+    inspectionRows.map(async (row) => {
+      const paths = Array.isArray(row.photos) ? (row.photos as string[]) : [];
+      return {
+        kind: row.kind as InspectionKind,
+        mileageKm: row.mileage_km,
+        fuelLevel: row.fuel_level as FuelLevel,
+        exteriorNotes: row.exterior_notes,
+        inspectedAt: row.inspected_at,
+        inspectorName: row.inspector?.full_name ?? null,
+        photos: await signInspectionPhotos(supabase, paths),
+      };
+    }),
+  );
 
   const actionBooking: ActionBooking = {
     id: booking.id,
@@ -226,6 +247,8 @@ export default async function BookingDetailPage({
               <p className="text-sm text-text-muted">No vehicle was assigned.</p>
             )}
           </Card>
+
+          <InspectionsPanel inspections={inspections} />
 
           <Card title="Price">
             <table className="w-full text-sm">

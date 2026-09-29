@@ -10,12 +10,12 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusPill } from "@/components/ui/StatusPill";
 import type { RankedVehicle } from "@/lib/assignment";
 import { assignVehicle } from "@/app/(admin)/admin/bookings/[reference]/actions";
+import { AssignVehicleList } from "@/components/admin/bookings/BookingActions";
 import {
-  AssignVehicleList,
   ActionFeedback,
   useBookingAction,
   type ActionBooking,
-} from "@/components/admin/bookings/BookingActions";
+} from "@/components/admin/bookings/bookingActionUtils";
 
 export type QueueRow = {
   booking: ActionBooking;

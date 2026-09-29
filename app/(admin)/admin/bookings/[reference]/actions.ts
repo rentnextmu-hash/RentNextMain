@@ -7,7 +7,7 @@ import { isVehicleAvailable } from "@/lib/availability";
 import { pickBestVehicleId } from "@/lib/assignment";
 import { canTransition } from "@/lib/bookingStatus";
 import { assignBookingVehicle, getBookingById, transitionBooking } from "@/lib/queries/bookings";
-import { completeBookingSchema, internalNotesSchema, recordPaymentSchema } from "@/lib/validation";
+import { inspectionSchema, internalNotesSchema, recordPaymentSchema } from "@/lib/validation";
 import type { BookingStatus } from "@/types/enums";
 
 export type ActionResult = { ok: true; message: string } | { ok: false; error: string };
@@ -113,19 +113,34 @@ export async function assignVehicle(bookingId: string, vehicleId: string): Promi
   });
 }
 
-export async function markPickedUp(bookingId: string): Promise<ActionResult> {
-  return run(bookingId, async ({ supabase }, booking) => {
-    await transitionBooking(supabase, booking.id, "active");
-    return "Marked as picked up.";
-  });
-}
+// Picking up (→ active) and completing (→ completed) now go through the
+// check-out / check-in inspection flow (recordInspection) so a condition
+// record is always captured — see below.
 
-export async function completeBooking(bookingId: string, formData: FormData): Promise<ActionResult> {
-  const parsed = completeBookingSchema.safeParse({ returnMileageKm: formData.get("returnMileageKm") });
+/**
+ * Record a check-out or check-in inspection (mileage, fuel, notes, photos) and
+ * advance the booking in one transaction: check-out → active, check-in →
+ * completed. Photos are already uploaded to the private inspections bucket;
+ * here we just persist their paths.
+ */
+export async function recordInspection(bookingId: string, payload: unknown): Promise<ActionResult> {
+  const parsed = inspectionSchema.safeParse(payload);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  return run(bookingId, async ({ supabase }, booking) => {
-    await transitionBooking(supabase, booking.id, "completed", { returnMileageKm: parsed.data.returnMileageKm });
-    return "Booking completed and the vehicle is available again.";
+  return run(bookingId, async ({ supabase, staff }, booking) => {
+    const { error } = await supabase.rpc("record_inspection", {
+      p_booking_id: booking.id,
+      p_kind: parsed.data.kind,
+      p_mileage_km: parsed.data.mileageKm,
+      p_fuel_level: parsed.data.fuelLevel,
+      // "" → the SQL nullif() stores it as NULL.
+      p_exterior_notes: parsed.data.exteriorNotes ?? "",
+      p_photos: parsed.data.photos,
+      p_staff_id: staff.id,
+    });
+    if (error) throw error;
+    return parsed.data.kind === "checkout"
+      ? "Vehicle checked out — the rental is now active."
+      : "Vehicle checked in — the rental is complete and the car is available again.";
   });
 }
 

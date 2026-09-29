@@ -394,3 +394,15 @@ export const addOnFormSchema = z.object({
 });
 
 export type AddOnFormValues = z.infer<typeof addOnFormSchema>;
+
+// Check-out / check-in inspection (V2 operations). Photos are storage paths in
+// the private inspections bucket, already uploaded client-side.
+export const inspectionSchema = z.object({
+  kind: z.enum(["checkout", "checkin"]),
+  mileageKm: z.coerce.number().int("Whole kilometres only.").min(0, "Mileage can't be negative.").max(2_000_000),
+  fuelLevel: z.enum(["empty", "quarter", "half", "three_quarters", "full"]),
+  exteriorNotes: z.string().max(2000, "Keep notes under 2000 characters.").optional(),
+  photos: z.array(z.string().max(500)).max(12, "Up to 12 photos.").default([]),
+});
+
+export type InspectionValues = z.infer<typeof inspectionSchema>;

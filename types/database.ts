@@ -160,6 +160,70 @@ export type Database = {
           },
         ]
       }
+      booking_inspections: {
+        Row: {
+          booking_id: string
+          created_at: string
+          exterior_notes: string | null
+          fuel_level: string
+          id: string
+          inspected_at: string
+          inspected_by: string | null
+          kind: string
+          mileage_km: number
+          photos: Json
+          vehicle_id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          exterior_notes?: string | null
+          fuel_level: string
+          id?: string
+          inspected_at?: string
+          inspected_by?: string | null
+          kind: string
+          mileage_km: number
+          photos?: Json
+          vehicle_id: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          exterior_notes?: string | null
+          fuel_level?: string
+          id?: string
+          inspected_at?: string
+          inspected_by?: string | null
+          kind?: string
+          mileage_km?: number
+          photos?: Json
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_inspections_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_inspections_inspected_by_fkey"
+            columns: ["inspected_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "booking_inspections_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_reference_counters: {
         Row: {
           last_sequence: number
@@ -891,6 +955,18 @@ export type Database = {
       generate_booking_reference: { Args: never; Returns: string }
       is_role: { Args: { roles: string[] }; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      record_inspection: {
+        Args: {
+          p_booking_id: string
+          p_exterior_notes: string
+          p_fuel_level: string
+          p_kind: string
+          p_mileage_km: number
+          p_photos: Json
+          p_staff_id: string
+        }
+        Returns: undefined
+      }
       release_vehicle_if_free: {
         Args: { p_except_booking_id: string; p_vehicle_id: string }
         Returns: undefined

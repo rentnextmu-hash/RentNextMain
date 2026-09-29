@@ -74,6 +74,13 @@ docker run -d --name rn-storage --network host \
   -e SERVER_PORT=5000 -e PGOPTIONS="-c search_path=storage,public" \
   public.ecr.aws/supabase/storage-api:v1.77.5 >/dev/null
 wait_for "curl -s -o /dev/null http://127.0.0.1:5000/status" 90
+# storage-api creates the `storage` schema only on its first boot — AFTER the
+# migration loop above ran — so the storage blocks in 0012/0015 skipped as a
+# no-op. Re-apply those now that the schema exists, to materialise the buckets
+# and their RLS policies.
+for f in supabase/migrations/0012_storage.sql supabase/migrations/0015_inspections.sql; do
+  docker exec -i rn-pg psql -U postgres -q -v ON_ERROR_STOP=1 < "$f" >/dev/null || { echo "failed reapplying $f" >&2; exit 1; }
+done
 docker run -d --name rn-gateway --network host -v "$PWD":/app -w /app \
   -e SUPABASE_URL=http://127.0.0.1:54321 -e SUPABASE_SERVICE_ROLE_KEY="$SERVICE" -e BOOKING_LINK_SECRET=local-link-secret \
   denoland/deno:2.5.6 run -A --config supabase/functions/deno.json scripts/local-stack/gateway.ts >/dev/null

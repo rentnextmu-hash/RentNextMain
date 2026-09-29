@@ -1,66 +1,24 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { CheckCircle2, Car, KeyRound, Flag, XCircle, Printer, Sparkles, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { canTransition } from "@/lib/bookingStatus";
 import type { RankedVehicle } from "@/lib/assignment";
+import { assignVehicle, cancelBooking, confirmBooking } from "@/app/(admin)/admin/bookings/[reference]/actions";
+import { InspectionDialog } from "@/components/admin/bookings/InspectionDialog";
 import {
-  assignVehicle,
-  cancelBooking,
-  completeBooking,
-  confirmBooking,
-  markPickedUp,
-  type ActionResult,
-} from "@/app/(admin)/admin/bookings/[reference]/actions";
+  ActionFeedback,
+  useBookingAction,
+  type ActionBooking,
+} from "@/components/admin/bookings/bookingActionUtils";
 import { cn } from "@/lib/utils";
 
-export type ActionBooking = {
-  id: string;
-  reference: string;
-  status: string;
-  vehicleId: string | null;
-  vehicleCode: string | null;
-  vehicleMileageKm: number | null;
-  categoryName: string;
-  pickupLocationId: string;
-};
-
-/** Runs a server action with a pending state and remembers the outcome for a status line. */
-export function useBookingAction() {
-  const [pending, startTransition] = useTransition();
-  const [result, setResult] = useState<ActionResult | null>(null);
-  // Which button started the pending action, so only that one shows a spinner.
-  const [busyKey, setBusyKey] = useState<string | null>(null);
-  const run = (action: () => Promise<ActionResult>, onSuccess?: () => void, key = "default") => {
-    setBusyKey(key);
-    startTransition(async () => {
-      const r = await action();
-      setResult(r);
-      if (r.ok) onSuccess?.();
-    });
-  };
-  const isBusy = (key: string) => pending && busyKey === key;
-  return { pending, result, run, isBusy, clear: () => setResult(null) };
-}
-
-export function ActionFeedback({ result, className }: { result: ActionResult | null; className?: string }) {
-  if (!result) return null;
-  return (
-    <p
-      role={result.ok ? "status" : "alert"}
-      className={cn(
-        "rounded-[var(--radius-md)] px-3 py-2 text-sm",
-        result.ok ? "bg-success/10 text-success" : "bg-error/10 text-error",
-        className,
-      )}
-    >
-      {result.ok ? result.message : result.error}
-    </p>
-  );
-}
+// Re-exported so existing importers (AssignQueue, InspectionDialog) can keep
+// pulling these from here; the definitions live in bookingActionUtils.
+export { ActionFeedback, useBookingAction } from "@/components/admin/bookings/bookingActionUtils";
+export type { ActionBooking } from "@/components/admin/bookings/bookingActionUtils";
 
 export function AssignVehicleList({
   booking,
@@ -136,7 +94,7 @@ export function AssignVehicleList({
 
 export function BookingActions({ booking, vehicles }: { booking: ActionBooking; vehicles: RankedVehicle[] }) {
   const { pending, result, run, isBusy } = useBookingAction();
-  const [dialog, setDialog] = useState<null | "assign" | "complete" | "cancel">(null);
+  const [dialog, setDialog] = useState<null | "assign" | "checkout" | "checkin" | "cancel">(null);
   const close = () => setDialog(null);
   const canAssign = booking.status === "requested" || booking.status === "confirmed";
 
@@ -161,17 +119,16 @@ export function BookingActions({ booking, vehicles }: { booking: ActionBooking; 
         {canTransition(booking.status, "active") && (
           <Button
             icon={<KeyRound className="h-4 w-4" aria-hidden="true" />}
-            loading={isBusy("pickup")}
-            disabled={pending || !booking.vehicleId}
+            disabled={!booking.vehicleId}
             title={booking.vehicleId ? undefined : "Assign a vehicle first"}
-            onClick={() => run(() => markPickedUp(booking.id), undefined, "pickup")}
+            onClick={() => setDialog("checkout")}
           >
-            Mark picked up
+            Check out
           </Button>
         )}
         {canTransition(booking.status, "completed") && (
-          <Button icon={<Flag className="h-4 w-4" aria-hidden="true" />} onClick={() => setDialog("complete")}>
-            Complete rental
+          <Button icon={<Flag className="h-4 w-4" aria-hidden="true" />} onClick={() => setDialog("checkin")}>
+            Check in &amp; complete
           </Button>
         )}
         {canTransition(booking.status, "cancelled") && (
@@ -194,47 +151,8 @@ export function BookingActions({ booking, vehicles }: { booking: ActionBooking; 
         <AssignVehicleList booking={booking} vehicles={vehicles} onAssigned={close} />
       </Modal>
 
-      <Modal
-        open={dialog === "complete"}
-        onClose={close}
-        title="Complete rental"
-        description={
-          <>
-            Record the odometer reading for <span className="font-mono">{booking.vehicleCode}</span>. The car goes back to
-            available.
-          </>
-        }
-      >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            run(() => completeBooking(booking.id, formData), close, "complete");
-          }}
-          className="space-y-4"
-        >
-          <Input
-            name="returnMileageKm"
-            label="Mileage on return (km)"
-            type="number"
-            inputMode="numeric"
-            min={booking.vehicleMileageKm ?? 0}
-            defaultValue={booking.vehicleMileageKm ?? undefined}
-            hint={booking.vehicleMileageKm !== null ? `Last recorded: ${booking.vehicleMileageKm.toLocaleString("en-US")} km` : undefined}
-            required
-            autoFocus
-          />
-          {result && !result.ok && <ActionFeedback result={result} />}
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={close}>
-              Back
-            </Button>
-            <Button type="submit" loading={isBusy("complete")}>
-              Complete rental
-            </Button>
-          </div>
-        </form>
-      </Modal>
+      <InspectionDialog booking={booking} kind="checkout" open={dialog === "checkout"} onClose={close} onDone={close} />
+      <InspectionDialog booking={booking} kind="checkin" open={dialog === "checkin"} onClose={close} onDone={close} />
 
       <Modal
         open={dialog === "cancel"}

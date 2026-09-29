@@ -57,3 +57,40 @@ export async function uploadImage(supabase: Client, bucket: ImageBucket, file: F
   if (error) throw new Error(error.message || "The upload failed. Please try again.");
   return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }
+
+export const INSPECTIONS_BUCKET = "inspections";
+
+/**
+ * Resize + upload a condition photo to the PRIVATE inspections bucket and
+ * return its storage PATH (not a URL) — private objects are viewed via
+ * short-lived signed URLs (signInspectionPhotos), so we persist the path.
+ * Grouped under the booking id for tidiness. Staff-only write (bucket RLS).
+ */
+export async function uploadInspectionPhoto(supabase: Client, bookingId: string, file: File): Promise<string> {
+  const webp = await resizeImageToWebP(file);
+  const path = `${bookingId}/${crypto.randomUUID()}.webp`;
+  const { error } = await supabase.storage.from(INSPECTIONS_BUCKET).upload(path, webp, {
+    contentType: "image/webp",
+    upsert: false,
+  });
+  if (error) throw new Error(error.message || "The upload failed. Please try again.");
+  return path;
+}
+
+/**
+ * Turn stored inspection photo paths into short-lived signed URLs for display.
+ * Server-side (needs the staff session for the private bucket). Skips any that
+ * fail to sign rather than throwing the whole page.
+ */
+export async function signInspectionPhotos(
+  supabase: Client,
+  paths: string[],
+  expiresInSeconds = 3600,
+): Promise<{ path: string; url: string }[]> {
+  if (paths.length === 0) return [];
+  const { data, error } = await supabase.storage.from(INSPECTIONS_BUCKET).createSignedUrls(paths, expiresInSeconds);
+  if (error) throw error;
+  return (data ?? [])
+    .map((d) => ({ path: d.path ?? "", url: d.signedUrl ?? "" }))
+    .filter((d) => d.path !== "" && d.url !== "");
+}
