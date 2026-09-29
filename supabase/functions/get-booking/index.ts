@@ -18,7 +18,7 @@ serve(async (body) => {
   const { data: b, error } = await createAdminClient()
     .from("bookings")
     .select(
-      `reference, status, created_at, pickup_at, return_at, days, car_total_mur, addons_total_mur, total_mur,
+      `reference, status, cancellation_requested_at, created_at, pickup_at, return_at, days, car_total_mur, addons_total_mur, total_mur,
        customer:customers(first_name, last_name, email),
        category:vehicle_categories(name, slug, category, image_path, transmission, seats),
        pickup_location:locations!bookings_pickup_location_id_fkey(name, address),
@@ -35,6 +35,7 @@ serve(async (body) => {
   const view: PublicBookingView = {
     reference: b.reference,
     status: b.status,
+    cancellationRequestedAt: b.cancellation_requested_at,
     createdAt: b.created_at,
     pickupAt: b.pickup_at,
     returnAt: b.return_at,

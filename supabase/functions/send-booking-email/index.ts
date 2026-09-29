@@ -101,6 +101,7 @@ serve(async (body, req) => {
 
   const reference = (body as { reference?: unknown })?.reference;
   if (typeof reference !== "string") return apiError(400, "invalid_request", "Missing reference.");
+  const emailType = (body as { type?: unknown })?.type === "cancellation_requested" ? "cancellation_requested" : "requested";
 
   const apiKey = Deno.env.get("RESEND_API_KEY");
   if (!apiKey) {
@@ -113,7 +114,7 @@ serve(async (body, req) => {
     supabase
       .from("bookings")
       .select(
-        `reference, pickup_at, return_at, days, car_total_mur, total_mur, notes,
+        `reference, pickup_at, return_at, days, car_total_mur, total_mur, notes, cancellation_reason,
          customer:customers(first_name, last_name, email, phone, country, flight_number),
          category:vehicle_categories(name),
          pickup_location:locations!bookings_pickup_location_id_fkey(name),
@@ -155,6 +156,42 @@ serve(async (body, req) => {
   ];
 
   const results: Record<string, string> = {};
+
+  // Cancellation request → notify staff only (the customer already sees an
+  // on-page acknowledgement). No customer email: staff confirm the cancel.
+  if (emailType === "cancellation_requested") {
+    if (!internalTo) {
+      console.warn(`No internal recipient for cancellation of ${reference}`);
+      return json({ skipped: true, reason: "no_internal_recipient" });
+    }
+    const c = b.customer;
+    const adminUrl = siteUrl ? `${siteUrl}/admin/bookings/${b.reference}` : null;
+    try {
+      await sendEmail(apiKey, {
+        from,
+        to: internalTo,
+        replyTo: c.email,
+        subject: `Cancellation requested — ${b.reference}`,
+        html: emailLayout({
+          companyName,
+          heading: `Cancellation requested — ${b.reference}`,
+          intro: `${escapeHtml(c.first_name)} ${escapeHtml(c.last_name)} has asked to cancel this booking. Review it and cancel or decline per the cancellation policy.`,
+          body:
+            detailsTable([
+              { label: "Customer", value: `${c.first_name} ${c.last_name}` },
+              { label: "Phone", value: c.phone },
+              ...tripRows.filter((r) => ["Reference", "Car", "Pickup", "Return", "Total"].includes(r.label)),
+              ...(b.cancellation_reason ? [{ label: "Reason given", value: b.cancellation_reason }] : []),
+            ]) + (adminUrl ? button(adminUrl, "Open in admin") : ""),
+          footer: "Sent automatically when a customer requests a cancellation from their booking link.",
+        }),
+      });
+      return json({ internal: "sent" });
+    } catch (err) {
+      console.error("cancellation email failed", err);
+      return json({ internal: "failed" });
+    }
+  }
 
   // Customer confirmation.
   try {

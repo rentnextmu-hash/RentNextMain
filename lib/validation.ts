@@ -87,6 +87,15 @@ export const getBookingRequestSchema = z.object({
 
 export type GetBookingRequest = z.infer<typeof getBookingRequestSchema>;
 
+/** A customer asking to cancel their booking from the signed link. */
+export const requestCancellationSchema = z.object({
+  reference: z.string().regex(/^CR-\d{8}-\d{3,}$/),
+  key: z.string().min(16).max(64),
+  reason: z.string().max(1000).optional(),
+});
+
+export type RequestCancellationRequest = z.infer<typeof requestCancellationSchema>;
+
 /** Structured error body every booking Edge Function returns on failure. */
 export type BookingApiError = {
   error: {
@@ -104,6 +113,7 @@ export type BookingApiError = {
 export type PublicBookingView = {
   reference: string;
   status: string;
+  cancellationRequestedAt: string | null;
   createdAt: string;
   pickupAt: string;
   returnAt: string;

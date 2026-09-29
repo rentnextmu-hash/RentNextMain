@@ -15,6 +15,7 @@ import { CopyReferenceButton } from "@/components/public/booking/ConfirmationAct
 import { AssignVehicleList, BookingActions, type ActionBooking } from "@/components/admin/bookings/BookingActions";
 import { InternalNotes, RecordPaymentForm } from "@/components/admin/bookings/BookingPanels";
 import { InspectionsPanel, type InspectionView } from "@/components/admin/bookings/InspectionsPanel";
+import { CancellationRequestBanner } from "@/components/admin/bookings/CancellationRequestBanner";
 import { SOURCES } from "@/components/admin/bookings/listParams";
 import type { FuelLevel, InspectionKind } from "@/types/enums";
 
@@ -133,6 +134,14 @@ export default async function BookingDetailPage({
         <p role="status" className="rounded-[var(--radius-md)] bg-success/10 px-4 py-3 text-sm font-medium text-success print:hidden">
           Booking {booking.reference} created.
         </p>
+      )}
+
+      {booking.cancellation_requested_at && booking.status !== "cancelled" && (
+        <CancellationRequestBanner
+          bookingId={booking.id}
+          requestedAt={booking.cancellation_requested_at}
+          reason={booking.cancellation_reason}
+        />
       )}
 
       {/* Print-only heading for the one-page rental agreement summary. */}

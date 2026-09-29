@@ -144,6 +144,18 @@ export async function recordInspection(bookingId: string, payload: unknown): Pro
   });
 }
 
+/** Staff decided to keep a booking the customer asked to cancel: clear the flag. */
+export async function dismissCancellationRequest(bookingId: string): Promise<ActionResult> {
+  return run(bookingId, async ({ supabase }, booking) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({ cancellation_requested_at: null, cancellation_reason: null })
+      .eq("id", booking.id);
+    if (error) throw error;
+    return "Cancellation request dismissed — the booking stands.";
+  });
+}
+
 export async function cancelBooking(bookingId: string): Promise<ActionResult> {
   return run(bookingId, async ({ supabase }, booking) => {
     await transitionBooking(supabase, booking.id, "cancelled" satisfies BookingStatus);

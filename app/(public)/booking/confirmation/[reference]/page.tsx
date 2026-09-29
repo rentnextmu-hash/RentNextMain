@@ -2,19 +2,37 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { Car, CheckCircle2, CreditCard, IdCard, MessageCircle, Phone, Mail, BookUser } from "lucide-react";
+import { Car, CheckCircle2, CreditCard, IdCard, MessageCircle, Phone, Mail, BookUser, XCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicSettings } from "@/lib/queries/settings";
 import { formatDateTimeLong, formatMUR } from "@/lib/format";
 import type { PublicBookingView } from "@/lib/validation";
 import { CLASS_LABEL } from "@/components/public/CarCard";
 import { CopyReferenceButton, PrintButton } from "@/components/public/booking/ConfirmationActions";
+import { ManageBooking } from "@/components/public/booking/ManageBooking";
 import type { VehicleCategoryClass } from "@/types/enums";
 
 export const metadata: Metadata = {
-  title: "Booking request received | Rent Next Car Hire",
+  title: "Your booking | Rent Next Car Hire",
   robots: { index: false, follow: false },
 };
+
+// The confirmation page doubles as the returning "manage my booking" page
+// (the email links here), so the top adapts to the booking's current status.
+function statusIntro(status: string, firstName: string, email: string): { heading: string; intro: string; cancelled: boolean } {
+  switch (status) {
+    case "confirmed":
+      return { heading: "Your booking is confirmed", intro: `You're all set, ${firstName}. We'll have your car ready at pickup. A confirmation is on its way to ${email}.`, cancelled: false };
+    case "active":
+      return { heading: "Your rental is under way", intro: `Enjoy the drive, ${firstName}. Remember to return the car by your return time.`, cancelled: false };
+    case "completed":
+      return { heading: "Rental completed", intro: `Thanks for driving with us, ${firstName}. We hope to see you again soon.`, cancelled: false };
+    case "cancelled":
+      return { heading: "Booking cancelled", intro: `This booking has been cancelled. If you have any questions, contact us using the details below.`, cancelled: true };
+    default:
+      return { heading: "Booking request received", intro: `Thank you, ${firstName}. Our team will check your request and confirm it by email to ${email} within two hours. Nothing is charged until then.`, cancelled: false };
+  }
+}
 
 type Props = {
   params: Promise<{ reference: string }>;
@@ -36,19 +54,18 @@ export default async function BookingConfirmationPage({ params, searchParams }: 
 
   const whatsappNumber = settings.companyPhone.replace(/[^\d]/g, "");
   const whatsappText = encodeURIComponent(`Hello, I have a question about my booking ${booking.reference}.`);
+  const { heading, intro, cancelled } = statusIntro(booking.status, booking.customer.firstName, booking.customer.email);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 print:py-0">
       <div className="text-center">
-        <CheckCircle2 className="mx-auto h-16 w-16 text-success" strokeWidth={1.5} aria-hidden="true" />
-        <h1 className="mt-4 font-[family-name:var(--font-heading)] text-h1 font-semibold text-text">
-          Booking request received
-        </h1>
-        <p className="mx-auto mt-3 max-w-xl text-text">
-          Thank you, {booking.customer.firstName}. Our team will check your request and confirm it by email to{" "}
-          <span className="font-medium">{booking.customer.email}</span> within two hours. Nothing is charged until
-          then.
-        </p>
+        {cancelled ? (
+          <XCircle className="mx-auto h-16 w-16 text-text-muted" strokeWidth={1.5} aria-hidden="true" />
+        ) : (
+          <CheckCircle2 className="mx-auto h-16 w-16 text-success" strokeWidth={1.5} aria-hidden="true" />
+        )}
+        <h1 className="mt-4 font-[family-name:var(--font-heading)] text-h1 font-semibold text-text">{heading}</h1>
+        <p className="mx-auto mt-3 max-w-xl text-text">{intro}</p>
 
         <div className="mt-6 inline-flex flex-wrap items-center justify-center gap-3 rounded-[var(--radius-lg)] border border-border bg-surface px-5 py-4">
           <div className="text-left">
@@ -125,6 +142,7 @@ export default async function BookingConfirmationPage({ params, searchParams }: 
         </table>
       </section>
 
+      {(booking.status === "requested" || booking.status === "confirmed") && (
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 print:break-inside-avoid">
         <section>
           <h2 className="font-[family-name:var(--font-heading)] text-h3 font-semibold text-text">What happens next</h2>
@@ -159,6 +177,7 @@ export default async function BookingConfirmationPage({ params, searchParams }: 
           </ul>
         </section>
       </div>
+      )}
 
       <section className="mt-8 rounded-[var(--radius-lg)] bg-surface-alt p-6 print:break-inside-avoid">
         <h2 className="font-semibold text-text">Questions about your booking?</h2>
@@ -183,6 +202,18 @@ export default async function BookingConfirmationPage({ params, searchParams }: 
               <Mail className="h-4 w-4" aria-hidden="true" /> {settings.bookingEmail}
             </a>
           )}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-[var(--radius-lg)] border border-border p-6 print:hidden">
+        <h2 className="font-semibold text-text">Manage your booking</h2>
+        <div className="mt-3">
+          <ManageBooking
+            reference={booking.reference}
+            bookingKey={key}
+            status={booking.status}
+            cancellationRequestedAt={booking.cancellationRequestedAt}
+          />
         </div>
       </section>
 

@@ -11,9 +11,12 @@ let current = "";
 };
 // deno-lint-ignore no-explicit-any
 (globalThis as any).EdgeRuntime = { waitUntil: (p: Promise<unknown>) => p.catch(console.error) };
-for (const name of ["check-availability", "create-booking", "get-booking", "send-booking-email"]) {
-  current = name;
-  await import(`/app/supabase/functions/${name}/index.ts`);
+// Every function directory under supabase/functions (skip _shared and files),
+// so a newly added function is served without editing this list.
+for await (const entry of Deno.readDir("/app/supabase/functions")) {
+  if (!entry.isDirectory || entry.name.startsWith("_")) continue;
+  current = entry.name;
+  await import(`/app/supabase/functions/${entry.name}/index.ts`);
 }
 
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" };
